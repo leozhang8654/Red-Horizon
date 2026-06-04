@@ -1,0 +1,47 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://side_reaper.gd" id="s_reaper"]
+[ext_resource type="Texture2D" path="res://side_reaper/body.png" id="body"]
+[ext_resource type="Texture2D" path="res://side_reaper/barrel.png" id="barrel"]
+[ext_resource type="Texture2D" path="res://side_reaper/laser.png" id="laser"]
+[ext_resource type="AudioStream" path="res://side reaper攻击音效.wav" id="atk"]
+
+[sub_resource type="CapsuleShape2D" id="cap"]
+radius = 84.0
+height = 600.0
+
+[node name="SideReaper" type="Area2D"]
+script = ExtResource("s_reaper")
+
+[node name="Body" type="Sprite2D" parent="."]
+texture = ExtResource("body")
+scale = Vector2(0.6, 0.6)
+
+[node name="Barrel" type="Sprite2D" parent="."]
+position = Vector2(102, -21)
+rotation = 3.14159
+scale = Vector2(0.6, 0.6)
+offset = Vector2(0, -215)
+texture = ExtResource("barrel")
+
+[node name="Muzzle" type="Marker2D" parent="Barrel"]
+position = Vector2(0, -421)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("cap")
+
+[node name="AimLine" type="Line2D" parent="."]
+top_level = true
+visible = false
+width = 8.0
+default_color = Color(1, 0.12, 0.12, 0.75)
+
+[node name="Laser" type="Sprite2D" parent="."]
+top_level = true
+visible = false
+texture = ExtResource("laser")
+offset = Vector2(0, -1064)
+scale = Vector2(0.6, 1.5)
+
+[node name="AttackSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("atk")

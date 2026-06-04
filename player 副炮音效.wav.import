@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://ch35wo630314i"
+path="res://.godot/imported/player 副炮音效.wav-babe239490067d87e57ddc4282b80a21.sample"
+
+[deps]
+
+source_file="res://player 副炮音效.wav"
+dest_files=["res://.godot/imported/player 副炮音效.wav-babe239490067d87e57ddc4282b80a21.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
