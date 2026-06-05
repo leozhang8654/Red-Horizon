@@ -27,7 +27,6 @@
 [ext_resource type="Texture2D" path="res://dodge_frames/roll_11.png" id="roll11"]
 [ext_resource type="PackedScene" path="res://side_reaper.tscn" id="16_reaper"]
 [ext_resource type="PackedScene" path="res://mech_arm.tscn" id="17_arm"]
-[ext_resource type="PackedScene" path="res://boss.tscn" id="18_boss"]
 
 [sub_resource type="SystemFont" id="SystemFont_go"]
 font_names = PackedStringArray("PingFang SC")
@@ -128,7 +127,6 @@ script = ExtResource("8_wave")
 enemy_scene = ExtResource("7_enemy")
 side_reaper_scene = ExtResource("16_reaper")
 mech_arm_scene = ExtResource("17_arm")
-boss_scene = ExtResource("18_boss")
 
 [node name="ShakeCamera" type="Camera2D" parent="." unique_id=333338382]
 script = ExtResource("12_cam")
@@ -266,7 +264,7 @@ theme_override_constants/separation = 12
 layout_mode = 2
 theme_override_fonts/font = SubResource("SystemFont_go")
 theme_override_font_sizes/font_size = 28
-text = "波数跳跃：1 = 杂兵编队   ·   2 = Side Reaper   ·   3 = Boss"
+text = "波数跳跃：1 = 杂兵编队   ·   2 = Side Reaper"
 horizontal_alignment = 1
 
 [node name="Row" type="HBoxContainer" parent="PauseMenu/Center/VBox/DevPanel"]
