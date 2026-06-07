@@ -8,3 +8,6 @@ export_presets.cfg
 
 # macOS 系统垃圾文件
 .DS_Store
+
+# Boss 抠图的中间预览/调试图（不参与游戏）
+boss_cut/_*
