@@ -3,10 +3,13 @@ extends Area2D
 # 属 "enemy_bullet" 组 → 玩家的受伤判定靠这个识别它。
 
 @export var speed := 300.0          # 飞行速度（像素/秒），由 Boss 发射时设定
+@export var face_velocity := false  # 是否把子弹转向飞行方向（条状/火焰子弹要开）
 var direction := Vector2.DOWN       # 单位方向向量，由 Boss 发射时设定
 
 func _ready():
 	add_to_group("enemy_bullet")
+	if face_velocity:
+		rotation = direction.angle() + PI / 2.0   # 让贴图“长轴(向上)”对准飞行方向
 
 func _physics_process(delta):
 	position += direction * speed * delta

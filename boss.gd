@@ -1,12 +1,12 @@
 extends Area2D
 # 第三波 Boss：MANTIS-LUX 巨型母舰。
-# 出场：从顶部压入 → 顶部悬停并缓慢左右游移；四个炮台实时瞄准玩家。
+# 出场：从顶部压入(此期间无敌) → 顶部悬停并缓慢左右游移；四个炮台实时瞄准玩家。
 # 分阶段击破：第一阶段主体碰撞关闭、打不到，只能逐个打爆四个炮台(各有血量)；
 #   四炮台全爆 → 打开主体碰撞 → 第二阶段才能打主体掉血 → 血光打光后大爆炸消失。
-# 三种攻击招式（机枪弹幕 / 中央激光 / 环形弹幕）后续步骤再加。
+# 攻击招式：第一阶段=环形弹幕 + 四炮台机枪；第二阶段=环形弹幕 + 中央横扫激光。
 
-@export var max_hp := 800.0           # Boss 总血量（玩家子弹每发约扣 1）
-@export var enter_speed := 220.0      # 从屏幕上方压入的速度（像素/秒）
+@export var max_hp := 300.0           # Boss 总血量（玩家子弹每发约扣 1）
+@export var enter_speed := 230.0      # 从屏幕上方压入的速度（像素/秒）
 @export var hover_y := 550.0          # 就位后机身中心悬停的高度
 @export var drift_x := 650.0          # 左右游移幅度（离屏幕中线最多偏多少像素）
 @export var drift_speed := 0.3        # 左右游移快慢（越大来回越快）
@@ -21,18 +21,39 @@ extends Area2D
 @export var turret_aim_smooth := 6.0   # 炮台转向平滑度（越大锁得越快，越小越“迟钝”）
 
 # —— 分阶段击破：先打四个炮台，全爆后主体才可攻击 ——
-@export var turret_hp := 80.0          # 每个炮台的血量
+@export var turret_hp := 50.0          # 每个炮台的血量
 @export var turret_score := 600        # 打爆一个炮台的得分
 
 # —— 招式①：环形弹幕（从核心 RingCore 向四周喷一整圈）——
 @export var ring_attack := true        # 是否开启环形弹幕
-@export var ring_count := 12           # 每圈几颗子弹（越少→缝隙越大越好躲；越多→越密越难）
-@export var ring_bullet_speed := 300.0 # 子弹飞行速度（像素/秒，越慢越好躲）
-@export var ring_interval := 1.8       # 每隔几秒发一圈（越大越宽松）
-@export var ring_spin_deg := 13.0      # 每圈整体多转多少度（让缝隙错开、不固定一条死缝）
+@export var ring_count := 10           # 每圈几颗子弹（越少→缝隙越大越好躲；越多→越密越难）
+@export var ring_bullet_speed := 1000.0 # 子弹飞行速度（像素/秒，越慢越好躲）
+@export var ring_interval := 1.0       # 每隔几秒发一圈（越大越宽松）
+@export var ring_spin_deg := 20.0      # 每圈整体多转多少度（让缝隙错开、不固定一条死缝）
+
+# —— 招式②：炮台机枪弹幕（每个活着的炮台朝玩家连发条状子弹）——
+@export var mg_attack := true          # 是否开启炮台机枪
+@export var mg_bullet_speed := 650.0   # 子弹速度（像素/秒）
+@export var mg_burst := 6              # 每轮每个炮台连发几颗
+@export var mg_rate := 0.09            # 连发时每颗的间隔（秒，越小越密）
+@export var mg_interval := 2.2         # 两轮之间的停顿（秒，越大越宽松）
+@export var mg_spread_deg := 7.0       # 随机散布角度（越大越散、越好躲）
+
+# —— 招式③：中央横扫激光（仅第二阶段，主体暴露后启用）——
+#   实现：整艘船绕中心侧倾，激光从机身正下方 CoreMuzzle 沿机身轴“垂直”射出；
+#   船身从 -arc 摆到 +arc，激光(始终垂直机身)就跟着横扫过去 → 既垂直又横扫。
+@export var laser_attack := true        # 是否开启横扫激光
+@export var laser_warn_time := 1.0      # 预警时长（船身摆到起始角 + 红线闪烁，秒）
+@export var laser_sweep_time := 2.5     # 横扫一趟时长（越大扫得越慢越好躲）
+@export var laser_cooldown := 2.0       # 两趟横扫之间的间隔（秒，越大越宽松）
+@export var laser_arc_deg := 45.0       # 横扫半张角（从正下方往两边各摆多少度）
+@export var laser_bank_speed := 6.0     # 预警时船身摆到位的平滑速度
+@export var laser_hit_width := 140.0    # 激光命中判定半宽（像素，越小越好躲）
 
 var _explosion_scene := preload("res://explosion.tscn")
-var _bullet_scene := preload("res://boss_bullet.tscn")   # Boss 核心子弹
+var _bullet_scene := preload("res://boss_bullet.tscn")   # Boss 核心子弹（环形弹幕）
+var _turret_bullet_scene := preload("res://boss_turret_bullet.tscn")   # 炮台机枪子弹
+var _barrel_explosion_scene := preload("res://barrel_explosion.tscn")   # 炮台专用爆炸
 var _hp := 0.0
 var _dead := false
 var _entered := false      # 是否已压入就位
@@ -43,9 +64,18 @@ var _blink_t := 0.0        # 受击闪烁剩余时间
 @onready var _body: Sprite2D = $Body
 @onready var _body_col: CollisionPolygon2D = $CollisionPolygon2D
 @onready var _ring_core: Marker2D = $RingCore
+@onready var _core_muzzle: Marker2D = $CoreMuzzle
+@onready var _laser_warn: Line2D = $LaserWarn
+@onready var _laser_beam: Sprite2D = $LaserBeam
 
 var _ring_t := 0.0          # 距离下一圈弹幕还差多久
 var _ring_angle := 0.0      # 当前这圈的起始角度（每圈累加 ring_spin_deg，让缝隙错开）
+var _mg_t := 1.5            # 机枪计时（初始等一会再开火）
+var _mg_shots_left := 0     # 本轮连发还剩几颗
+var _laser_phase := "idle"  # 激光阶段：idle 间隔 / warn 预警 / sweep 横扫
+var _laser_t := 0.0         # 激光阶段计时
+var _laser_dir := 1.0       # 本趟横扫方向（每趟交替）
+var _laser_angle := 0.0     # 当前光束角度
 
 var _turrets: Array = []        # 四个炮台，每个 {pivot, sprite, forward, hp, blink, dead}
 var _turrets_alive := 0         # 还活着的炮台数
@@ -56,6 +86,9 @@ func _ready():
 	add_to_group("enemy")        # 玩家子弹靠这个识别敌人
 	add_to_group("boss")         # 单独标记，后续血条/波次管理用
 	area_entered.connect(_on_area_entered)
+	var solid = get_node_or_null("Solid")
+	if solid:
+		solid.add_to_group("boss_solid")   # 让玩家撞到时能识别这是 Boss 实体 → 扣血
 	_setup_turrets()
 	_center_x = get_viewport_rect().size.x / 2.0
 	position = Vector2(_center_x, -400.0)   # 先藏在屏幕上方外面
@@ -75,6 +108,9 @@ func _physics_process(delta):
 		position.x = _center_x + sin(_t) * drift_x
 	if _entered:
 		_update_ring(delta)
+		_update_mg(delta)
+		if _body_vulnerable:        # 第二阶段（炮台全爆、主体暴露）才放横扫激光
+			_update_laser(delta)
 	_aim_turrets(delta)
 	_update_turret_blink(delta)
 	_update_blink(delta)
@@ -100,6 +136,108 @@ func _fire_ring():
 		b.global_position = origin                  # 从核心位置冒出来
 	_ring_angle += ring_spin_deg                    # 下一圈整体转一点，缝隙就错开了
 
+# 招式②：炮台机枪——连发一阵 → 停顿 → 再连发，循环
+func _update_mg(delta):
+	if not mg_attack:
+		return
+	_mg_t -= delta
+	if _mg_t > 0.0:
+		return
+	if _mg_shots_left <= 0:
+		_mg_shots_left = mg_burst   # 开始新一轮连发
+		_mg_t = mg_interval         # 先停顿一下
+		return
+	_mg_fire_once()
+	_mg_shots_left -= 1
+	_mg_t = mg_rate
+
+# 每个还活着的炮台，从它的每个炮口都朝玩家方向发一颗（带随机散布）
+func _mg_fire_once():
+	var p = get_tree().get_first_node_in_group("player")
+	for t in _turrets:
+		if t["dead"]:
+			continue
+		for m in t["muzzles"]:
+			if m == null or not is_instance_valid(m):
+				continue
+			var origin: Vector2 = m.global_position
+			var dir: Vector2 = Vector2.DOWN
+			if p:
+				dir = (p.global_position - origin).normalized()
+			dir = dir.rotated(deg_to_rad(randf_range(-mg_spread_deg, mg_spread_deg)))
+			var b = _turret_bullet_scene.instantiate()
+			b.direction = dir
+			b.speed = mg_bullet_speed
+			get_parent().add_child(b)
+			b.global_position = origin
+
+# 招式③：中央激光——间隔 → 预警(红线) → 缓慢横扫(贯穿光束) → 间隔，循环
+func _update_laser(delta):
+	if not laser_attack:
+		rotation = lerp_angle(rotation, 0.0, laser_bank_speed * delta)
+		return
+	var down := PI / 2.0                 # 正下方（屏幕里 y 向下）
+	var arc := deg_to_rad(laser_arc_deg)
+	match _laser_phase:
+		"idle":
+			rotation = lerp_angle(rotation, 0.0, laser_bank_speed * delta)   # 没在放激光 → 船身回正
+			_laser_t += delta
+			if _laser_t >= laser_cooldown:
+				_laser_t = 0.0
+				_laser_dir = 1.0 if randf() < 0.5 else -1.0   # 每趟随机：左→右 或 右→左
+				_laser_phase = "warn"
+		"warn":
+			_laser_angle = down - _laser_dir * arc          # 这趟横扫的起点角
+			# 船身侧倾到“与激光垂直”：机身正下方(+Y)对准激光方向，平滑摆到起点角
+			rotation = lerp_angle(rotation, _laser_angle - down, laser_bank_speed * delta)
+			_show_laser_warn(_laser_angle)
+			_laser_t += delta
+			if _laser_t >= laser_warn_time:
+				_laser_t = 0.0
+				_laser_warn.visible = false
+				_laser_phase = "sweep"
+		"sweep":
+			var f: float = clamp(_laser_t / laser_sweep_time, 0.0, 1.0)
+			_laser_angle = (down - _laser_dir * arc) + _laser_dir * (2.0 * arc) * f
+			rotation = _laser_angle - down                   # 船身始终与激光垂直，跟着横扫一起转
+			_show_laser_beam(_laser_angle)
+			_check_laser_hit(_laser_angle)
+			_laser_t += delta
+			if _laser_t >= laser_sweep_time:
+				_laser_t = 0.0
+				_laser_beam.visible = false
+				_laser_phase = "idle"
+
+func _show_laser_warn(angle):
+	var origin: Vector2 = _core_muzzle.global_position
+	var dir := Vector2(cos(angle), sin(angle))
+	_laser_warn.global_position = origin
+	_laser_warn.rotation = dir.angle()
+	_laser_warn.points = PackedVector2Array([Vector2.ZERO, Vector2(3000.0, 0.0)])
+	_laser_warn.visible = fmod(_laser_t * 12.0, 1.0) < 0.5   # 闪烁预警
+
+func _show_laser_beam(angle):
+	var origin: Vector2 = _core_muzzle.global_position
+	var dir := Vector2(cos(angle), sin(angle))
+	_laser_beam.visible = true
+	_laser_beam.global_position = origin
+	_laser_beam.rotation = dir.angle() + PI / 2.0           # 让光束贴图沿方向延伸
+
+func _check_laser_hit(angle):
+	# 几何判定：玩家到光束中轴的垂直距离 < hit_width 且在炮口前方 → 命中
+	var p = get_tree().get_first_node_in_group("player")
+	if p == null:
+		return
+	var origin: Vector2 = _core_muzzle.global_position
+	var dir := Vector2(cos(angle), sin(angle))
+	var to_p: Vector2 = p.global_position - origin
+	var along: float = to_p.dot(dir)
+	if along < 0.0:
+		return
+	var perp: float = (to_p - dir * along).length()
+	if perp <= laser_hit_width and p.has_method("hit_by_enemy"):
+		p.hit_by_enemy()
+
 # 启动时记下四个炮台的“支点节点”+图片+血量，并用各自的 Muzzle 确定“炮口正前方”
 func _setup_turrets():
 	for n in ["BarrelLeftPivot", "BarrelRightPivot", "DroneLeftPivot", "DroneRightPivot"]:
@@ -107,12 +245,13 @@ func _setup_turrets():
 		if piv == null:
 			continue
 		var spr = piv.get_child(0)        # 支点下第一个子节点 = 炮台图片
+		# 收集这个炮台下的所有炮口标记点（含嵌套的）
+		var muzzles = piv.find_children("Muzzle", "Marker2D", true, false)
 		var fwd := 0.0
-		var m = piv.find_child("Muzzle", true, false)   # 找到该炮台的炮口标记点
-		if m:
-			# 炮口相对“支点”的方向 = 这门炮在静止时的正前方
-			fwd = piv.to_local(m.global_position).angle()
-		var entry := {"pivot": piv, "sprite": spr, "forward": fwd, "hp": turret_hp, "blink": 0.0, "dead": false}
+		if not muzzles.is_empty():
+			# 用第一个炮口相对“支点”的方向 = 这门炮在静止时的正前方
+			fwd = piv.to_local(muzzles[0].global_position).angle()
+		var entry := {"pivot": piv, "sprite": spr, "forward": fwd, "hp": turret_hp, "blink": 0.0, "dead": false, "muzzles": muzzles}
 		var hit = spr.get_node_or_null("Hit")
 		if hit:
 			hit.area_entered.connect(_on_turret_area.bind(entry))   # 这个炮台被子弹打中
@@ -150,6 +289,8 @@ func _update_turret_blink(delta):
 func _on_turret_area(area, entry):
 	if entry["dead"]:
 		return
+	if not _entered:        # 进场(压入)期间无敌，子弹无效
+		return
 	if not area.is_in_group("bullet"):
 		return
 	entry["hp"] -= area.damage
@@ -161,9 +302,10 @@ func _on_turret_area(area, entry):
 # 炮台被打爆：原地爆炸 + 整个移除 + 计数；四个全爆则开放主体
 func _destroy_turret(entry):
 	entry["dead"] = true
-	var fx = _explosion_scene.instantiate()
+	var fx = _barrel_explosion_scene.instantiate()
 	fx.global_position = entry["sprite"].global_position
-	fx.scale = Vector2(0.45, 0.45)
+	# 爆炸序列图“正前方=右”，对齐到这门炮的真实炮口方向(sprite朝向 + 该炮forward)
+	fx.global_rotation = entry["sprite"].global_rotation + entry["forward"]
 	get_parent().add_child(fx)
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud:
@@ -193,6 +335,8 @@ func _update_blink(delta):
 
 func _on_area_entered(area):
 	if _dead:
+		return
+	if not _entered:               # 进场(压入)期间无敌
 		return
 	if not _body_vulnerable:       # 四个炮台没打完前，主体打不动
 		return
