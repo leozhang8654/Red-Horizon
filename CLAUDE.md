@@ -26,7 +26,11 @@
 - `dust skimmer.gd` / `enemy.tscn` — **第一波**小兵：V 字进场、悬浮、受击闪烁、三炮口开火。
 - `side_reaper.gd` / `side_reaper.tscn` — **第二波**精英敌机；`side_reaper_explosion.tscn` 是它的死亡爆炸。
 - `mech_arm.gd` / `mech_arm.tscn` — **第二波**随场出现的机械臂电锯（场地危险物）。
-- `wave_spawner.gd` — 编队管理：第一波 V 字杂兵 → 清光后第二波(Side Reaper + 机械臂)。含 `jump_to_wave(n)` 供作弊跳波。
+- `wave_spawner.gd` — 编队管理：第一波 V 字杂兵 → 清光后第二波(Side Reaper + 机械臂) → 清光后**第三波 Boss**。含 `jump_to_wave(n)` 供作弊跳波(1/2/3)。
+- `boss.gd` / `boss.tscn` — **第三波 Boss**(MANTIS-LUX 母舰)：出场无敌、悬停游移、四炮台瞄准、分阶段击破、三招(环形弹幕/炮台机枪/横扫激光)、实体阻挡。
+- `boss_bullet.gd` — Boss 通用子弹(可朝任意方向飞、可选转向)；`boss_bullet.tscn`=核心环形弹(圆球)、`boss_turret_bullet.tscn`=炮台机枪弹(火焰条)。
+- `barrel_explosion.tscn` — 炮台被打爆的专用爆炸(序列图逐帧，复用 `explosion.gd`)。
+- 抠好的 Boss 贴图都在 `boss_cut/`(主体/左右炮管/小炮塔/核心弹/炮台弹/激光)。
 - `enemy_bullet.gd` / `dust skimmer amo.tscn` — 敌方子弹（向下飞）。
 - `player bullet.gd` / `bullet.tscn` — 玩家主炮子弹。
 - `副炮子弹.tscn` — 玩家副炮子弹。
@@ -48,7 +52,8 @@
 - 暂停菜单 → `"pause_menu"`
 
 ## 调试 / 作弊
-- 游戏中按 **ESC** 暂停 → 密码框输入 `123456` → 出现"波数跳跃" → 输入 **1**(杂兵编队) 或 **2**(Side Reaper) 跳到该波。
+- 游戏中按 **ESC** 暂停 → 密码框输入 `123456` → 出现"波数跳跃" → 输入 **1**(杂兵编队) / **2**(Side Reaper) / **3**(Boss) 跳到该波。
+- 暂停菜单里还有**总音量**滑条（控制 Master 总线，存到 `user://settings.cfg`）。暂停时按**空格**继续游戏、按 **R** 重开。
 
 ## 项目参数
 - 视口分辨率：1152 × 648（见 `project.godot`）。
@@ -62,6 +67,6 @@
 - **Godot 开着的场景/脚本标签页会被存回硬盘**：想从外部 `mv`/删一个 `.tscn`，要**先在 Godot 里关掉它的标签页**（或退出 Godot），否则它会"复活"。同理，被移走文件的脚本标签会报 `File not found` —— 关掉那个标签即可，不影响游戏运行。
 
 ## 历史备注
-- **Boss（巨型锯齿战车）做过两版后已撤除**：先试了"伪3D 分层"（效果差，弃用），又改"逐帧动画"，最后整套连同第三波一起删掉。
-- 遗留的 AI 素材仍在项目里，留作以后重做：`boss待机/`、`boss待机2/`（待机帧）、`boss_sawtank.png`、`boss_sawtank_parts_batch1/`、`BOSS_待机帧_生成方案.md`。
-- 旧的 boss 实现（`boss.gd`/`boss.tscn`/抠好的 `boss_idle_frames/` 等）已备份在 `/tmp/boss_*`。以后重做建议直接用 **AnimatedSprite2D 逐帧**（待机帧已抠好可复用）。
+- **第三波 Boss = MANTIS-LUX 紫色蝠鲼母舰**（现行版本）：`boss.tscn` / `boss.gd`。出场期间无敌 → 顶部悬停左右游移；四个炮台用支点节点实时瞄准玩家。**分阶段击破**：先逐个打爆四个炮台（各有血量/贴合碰撞/受击闪烁/爆炸），全爆后才打开主体碰撞、进入主体可攻击阶段。**三招**：①核心环形弹幕 ②四炮台机枪散射 ③第二阶段中央横扫激光（整船侧倾、激光始终垂直机身）。Boss 是**实体**，玩家撞上去会被挡住并扣血。
+- **旧 Boss（巨型锯齿战车 boss_sawtank）已彻底废弃删除**：当年试过"伪3D 分层"和"逐帧动画"两版均不理想，连同整批 AI 素材（`boss待机/`、`boss待机2/`、`boss_sawtank*`、`BOSS_待机帧_生成方案.md` 等）已在一次项目整理中**全部删除，不再保留**。
+- **整理过项目**：清掉了所有没被场景/脚本引用的旧素材（源图、抠图中间图、被切过的源序列图、备份、生成动画的网页等）。现在根目录只保留在用文件。
