@@ -60,30 +60,34 @@ func _on_jump():
 		get_tree().paused = false
 		visible = false
 
-# 空格键“继续游戏”：用 _input 优先拦截，确保即使焦点在输入框里也能用
+# 空格“继续”、R“重开”：都用 _input 优先拦截，确保即使焦点在密码框里也照样触发
 func _input(event):
 	if not visible:
 		return
-	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
-		get_viewport().set_input_as_handled()            # 吃掉这次空格，别让它跑去当“闪避”或输进文本框
+	if not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	if event.keycode == KEY_SPACE:
+		get_viewport().set_input_as_handled()            # 吃掉空格，别让它输进密码框/当“闪避”
 		get_tree().paused = false                        # 继续游戏
 		visible = false
+	elif event.keycode == KEY_R:
+		get_viewport().set_input_as_handled()            # 吃掉 R，别让它输进密码框
+		get_tree().paused = false                        # 先解除暂停，否则新一局也是冻住的
+		get_tree().call_deferred("reload_current_scene") # 重新开始本局
 
 func _unhandled_input(event):
 	# 如果“游戏结束”画面正显示，暂停就别来插手（避免两个菜单打架）
 	var go = get_tree().get_first_node_in_group("game_over")
 	if go and go.visible:
 		return
-
-	# ESC：只负责“打开暂停”（继续游戏改用空格）
-	if event.is_action_pressed("ui_cancel") and not visible:
-		_toggle_pause()
+	# 标题页还开着时，ESC 也别来插手
+	var ss = get_tree().get_first_node_in_group("start_screen")
+	if ss and ss.visible:
 		return
 
-	# 暂停状态下，按 R 重新开始本局
-	if visible and event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_R:
-		get_tree().paused = false                        # 先解除暂停，否则新一局也是冻住的
-		get_tree().call_deferred("reload_current_scene")
+	# ESC：只负责“打开暂停”（继续游戏改用空格、重开用 R，都在 _input 里处理）
+	if event.is_action_pressed("ui_cancel") and not visible:
+		_toggle_pause()
 
 func _toggle_pause():
 	if get_tree().paused:

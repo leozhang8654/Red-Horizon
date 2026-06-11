@@ -179,6 +179,9 @@ func _take_damage():
 	if hud:
 		hud.set_hearts(_hearts)
 		hud.flash_hearts(invincible_time)   # 爱心闪烁，持续整个无敌时间
+		# 扣第 n 滴血罚 50+50*n 分：第1次-100、第2次-150、第3次-200……越往后越痛
+		var n = max_hearts - _hearts
+		hud.add_score(-(50 + 50 * n))
 	# 屏幕剧烈震动
 	var cam = get_tree().get_first_node_in_group("camera")
 	if cam:

@@ -17,6 +17,10 @@
 [ext_resource type="PackedScene" path="res://side_reaper.tscn" id="16_reaper"]
 [ext_resource type="PackedScene" uid="uid://blb0300o5yikw" path="res://mech_arm.tscn" id="17_arm"]
 [ext_resource type="PackedScene" uid="uid://bae10jky4ubsl" path="res://boss.tscn" id="18_boss"]
+[ext_resource type="Script" uid="uid://csgc1g0ch0gj" path="res://start_screen.gd" id="19_start"]
+[ext_resource type="Texture2D" uid="uid://duab62qhdsj6h" path="res://标题_透明.png" id="20_title"]
+[ext_resource type="FontFile" uid="uid://dltbhso1dq4sl" path="res://分数字体.fnt" id="21_scorefont"]
+[ext_resource type="FontFile" uid="uid://dr5arval66lmd" path="res://fusion-pixel-12px-proportional-zh_hans.ttf" id="22_pixfont"]
 [ext_resource type="Texture2D" uid="uid://dhgm8d0eyfwfx" path="res://dodge_frames/roll_1.png" id="roll1"]
 [ext_resource type="Texture2D" uid="uid://ksc1mjknv5kq" path="res://dodge_frames/roll_2.png" id="roll2"]
 [ext_resource type="Texture2D" uid="uid://bvc4k2usg462p" path="res://dodge_frames/roll_3.png" id="roll3"]
@@ -69,9 +73,6 @@ animations = [{
 "name": &"roll",
 "speed": 20.0
 }]
-
-[sub_resource type="SystemFont" id="SystemFont_go"]
-font_names = PackedStringArray("PingFang SC")
 
 [node name="Node2D" type="Node2D" unique_id=787609847]
 
@@ -139,11 +140,12 @@ script = ExtResource("10_hud")
 [node name="Score" type="Label" parent="HUD" unique_id=506517017]
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 16.0
+offset_top = 48.0
+offset_right = -144.0
 offset_bottom = 320.0
 grow_horizontal = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
-theme_override_font_sizes/font_size = 192
+theme_override_fonts/font = ExtResource("21_scorefont")
+theme_override_font_sizes/font_size = 204
 text = "000000"
 horizontal_alignment = 1
 
@@ -199,21 +201,22 @@ theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="GameOver/Center/VBox" unique_id=1854241550]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
-theme_override_font_sizes/font_size = 110
-text = "游戏结束"
+theme_override_colors/font_color = Color(0.9509309, 3.3450872e-06, 3.85046e-07, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 550
+text = "任务失败"
 horizontal_alignment = 1
 
 [node name="Final" type="Label" parent="GameOver/Center/VBox" unique_id=866657654]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
-theme_override_font_sizes/font_size = 52
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 260
 text = "本局得分：0"
 horizontal_alignment = 1
 
 [node name="Hint" type="Label" parent="GameOver/Center/VBox" unique_id=428208690]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 36
 text = "按 空格键 重新开始"
 horizontal_alignment = 1
@@ -238,34 +241,33 @@ theme_override_constants/separation = 24
 
 [node name="Title" type="Label" parent="PauseMenu/Center/VBox" unique_id=792044802]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 100
 text = "暂停"
 horizontal_alignment = 1
 
 [node name="Hint" type="Label" parent="PauseMenu/Center/VBox" unique_id=872611320]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 36
 text = "空格 继续游戏    ·    R 重新开始"
 horizontal_alignment = 1
 
-[node name="VolumeRow" type="HBoxContainer" parent="PauseMenu/Center/VBox"]
+[node name="VolumeRow" type="HBoxContainer" parent="PauseMenu/Center/VBox" unique_id=1331864605]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="VolLabel" type="Label" parent="PauseMenu/Center/VBox/VolumeRow"]
+[node name="VolLabel" type="Label" parent="PauseMenu/Center/VBox/VolumeRow" unique_id=1656177787]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "音量"
 
-[node name="VolSlider" type="HSlider" parent="PauseMenu/Center/VBox/VolumeRow"]
+[node name="VolSlider" type="HSlider" parent="PauseMenu/Center/VBox/VolumeRow" unique_id=159211302]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_vertical = 4
-min_value = 0.0
 max_value = 1.0
 step = 0.01
 value = 1.0
@@ -273,7 +275,7 @@ value = 1.0
 [node name="PassEdit" type="LineEdit" parent="PauseMenu/Center/VBox" unique_id=731768962]
 custom_minimum_size = Vector2(440, 0)
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 placeholder_text = "开发者密码"
 alignment = 1
@@ -285,7 +287,7 @@ theme_override_constants/separation = 12
 
 [node name="DevHint" type="Label" parent="PauseMenu/Center/VBox/DevPanel" unique_id=1863656458]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 28
 text = "波数跳跃：1 = 杂兵编队   ·   2 = Side Reaper   ·   3 = Boss"
 horizontal_alignment = 1
@@ -298,13 +300,72 @@ alignment = 1
 [node name="WaveEdit" type="LineEdit" parent="PauseMenu/Center/VBox/DevPanel/Row" unique_id=1021804513]
 custom_minimum_size = Vector2(140, 0)
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 placeholder_text = "波数"
 alignment = 1
 
 [node name="JumpBtn" type="Button" parent="PauseMenu/Center/VBox/DevPanel/Row" unique_id=1685379223]
 layout_mode = 2
-theme_override_fonts/font = SubResource("SystemFont_go")
+theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "跳转"
+
+[node name="StartScreen" type="CanvasLayer" parent="." unique_id=26778887]
+layer = 5
+script = ExtResource("19_start")
+
+[node name="Bg" type="ColorRect" parent="StartScreen" unique_id=1843425922]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.55)
+
+[node name="Center" type="CenterContainer" parent="StartScreen" unique_id=1018897189]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="StartScreen/Center" unique_id=278568430]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="Title" type="TextureRect" parent="StartScreen/Center/VBox" unique_id=842352046]
+custom_minimum_size = Vector2(840, 216)
+layout_mode = 2
+texture = ExtResource("20_title")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Subtitle" type="Label" parent="StartScreen/Center/VBox" unique_id=1429851263]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.82, 0.82, 0.88, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 44
+text = "击毁 MANTIS-LUX 母舰"
+horizontal_alignment = 1
+
+[node name="Prompt" type="Label" parent="StartScreen/Center/VBox" unique_id=1556009594]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 52
+text = "按 空格 开始"
+horizontal_alignment = 1
+
+[node name="Controls" type="Label" parent="StartScreen" unique_id=1076046295]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 44
+text = "移动 WASD / 方向键      ·      空格 闪避      ·      ESC 暂停"
+horizontal_alignment = 1
+vertical_alignment = 1

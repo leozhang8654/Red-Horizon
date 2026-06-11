@@ -30,7 +30,7 @@ func _ready():
 	add_to_group("spawner")     # 让暂停菜单的作弊功能能找到我
 	# 先等 spawn_delay 秒，再生成这波敌机
 	var g := _gen
-	await get_tree().create_timer(spawn_delay).timeout
+	await get_tree().create_timer(spawn_delay, false).timeout
 	if g != _gen:
 		return                  # 期间发生了跳波 → 这次作废
 	if not _wave_done:
@@ -73,7 +73,7 @@ func _process(_delta):
 
 func _spawn_reaper_after_delay():
 	var g := _gen
-	await get_tree().create_timer(reaper_delay).timeout
+	await get_tree().create_timer(reaper_delay, false).timeout
 	if g != _gen:
 		return                          # 期间发生了跳波 → 作废
 	_spawn_reapers()
@@ -89,7 +89,7 @@ func _spawn_reapers():
 	var g := _gen
 	for i in range(reaper_count):
 		if i > 0:
-			await get_tree().create_timer(reaper_interval).timeout
+			await get_tree().create_timer(reaper_interval, false).timeout
 			if g != _gen:
 				return            # 期间跳波/重置 → 停止继续生成
 		var r = side_reaper_scene.instantiate()
@@ -100,7 +100,7 @@ func _spawn_reapers():
 # —— 第三波：Boss 登场 ——
 func _spawn_boss_after_delay():
 	var g := _gen
-	await get_tree().create_timer(boss_delay).timeout
+	await get_tree().create_timer(boss_delay, false).timeout
 	if g != _gen:
 		return                    # 期间跳波/重置 → 作废
 	_spawn_boss()

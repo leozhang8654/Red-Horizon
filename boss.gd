@@ -10,7 +10,7 @@ extends Area2D
 @export var hover_y := 550.0          # 就位后机身中心悬停的高度
 @export var drift_x := 650.0          # 左右游移幅度（离屏幕中线最多偏多少像素）
 @export var drift_speed := 0.3        # 左右游移快慢（越大来回越快）
-@export var score_value := 5000       # 击毁得分
+@export var score_value := 10000       # 击毁得分
 
 # —— 受击闪烁 ——
 @export var blink_persist := 0.06     # 每次中弹后白光持续多久
@@ -22,7 +22,7 @@ extends Area2D
 
 # —— 分阶段击破：先打四个炮台，全爆后主体才可攻击 ——
 @export var turret_hp := 50.0          # 每个炮台的血量
-@export var turret_score := 600        # 打爆一个炮台的得分
+@export var turret_score := 800        # 打爆一个炮台的得分
 
 # —— 招式①：环形弹幕（从核心 RingCore 向四周喷一整圈）——
 @export var ring_attack := true        # 是否开启环形弹幕
@@ -43,8 +43,8 @@ extends Area2D
 #   实现：整艘船绕中心侧倾，激光从机身正下方 CoreMuzzle 沿机身轴“垂直”射出；
 #   船身从 -arc 摆到 +arc，激光(始终垂直机身)就跟着横扫过去 → 既垂直又横扫。
 @export var laser_attack := true        # 是否开启横扫激光
-@export var laser_warn_time := 1.0      # 预警时长（船身摆到起始角 + 红线闪烁，秒）
-@export var laser_sweep_time := 2.5     # 横扫一趟时长（越大扫得越慢越好躲）
+@export var laser_warn_time := 1.6      # 预警时长（船身摆到起始角 + 红线闪烁，秒）
+@export var laser_sweep_time := 5.5     # 横扫一趟时长（越大扫得越慢越好躲）；和 warn 之和≈音效长度
 @export var laser_cooldown := 2.0       # 两趟横扫之间的间隔（秒，越大越宽松）
 @export var laser_arc_deg := 45.0       # 横扫半张角（从正下方往两边各摆多少度）
 @export var laser_bank_speed := 6.0     # 预警时船身摆到位的平滑速度
@@ -67,6 +67,9 @@ var _blink_t := 0.0        # 受击闪烁剩余时间
 @onready var _core_muzzle: Marker2D = $CoreMuzzle
 @onready var _laser_warn: Line2D = $LaserWarn
 @onready var _laser_beam: Sprite2D = $LaserBeam
+@onready var _laser_sound: AudioStreamPlayer = $LaserSound
+@onready var _ring_sound: AudioStreamPlayer = $RingSound
+@onready var _mg_sound: AudioStreamPlayer = $MgSound
 
 var _ring_t := 0.0          # 距离下一圈弹幕还差多久
 var _ring_angle := 0.0      # 当前这圈的起始角度（每圈累加 ring_spin_deg，让缝隙错开）
@@ -125,6 +128,7 @@ func _update_ring(delta):
 		_fire_ring()
 
 func _fire_ring():
+	_ring_sound.play()   # 每喷一圈响一次（max_polyphony 允许叠音不被掐断）
 	var origin: Vector2 = _ring_core.global_position
 	var step: float = TAU / float(max(ring_count, 1))
 	for i in range(ring_count):
@@ -147,9 +151,13 @@ func _update_mg(delta):
 		_mg_shots_left = mg_burst   # 开始新一轮连发
 		_mg_t = mg_interval         # 先停顿一下
 		return
+	if _mg_shots_left == mg_burst and _turrets_alive > 0:
+		_mg_sound.play()            # 本轮第一发：响一串机枪声（炮台全灭后不再响）
 	_mg_fire_once()
 	_mg_shots_left -= 1
 	_mg_t = mg_rate
+	if _mg_shots_left <= 0:
+		_mg_sound.stop()            # 最后一发打完 → 机枪声立刻停，不拖余响
 
 # 每个还活着的炮台，从它的每个炮口都朝玩家方向发一颗（带随机散布）
 func _mg_fire_once():
@@ -196,6 +204,10 @@ func _update_laser(delta):
 				_laser_t = 0.0
 				_laser_warn.visible = false
 				_laser_phase = "sweep"
+				# 激光音效只在“真正发射”时响：用 pitch 让它正好卡满横扫时长
+				if _laser_sound.stream and laser_sweep_time > 0.0:
+					_laser_sound.pitch_scale = _laser_sound.stream.get_length() / laser_sweep_time
+				_laser_sound.play()
 		"sweep":
 			var f: float = clamp(_laser_t / laser_sweep_time, 0.0, 1.0)
 			_laser_angle = (down - _laser_dir * arc) + _laser_dir * (2.0 * arc) * f

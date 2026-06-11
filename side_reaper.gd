@@ -11,7 +11,7 @@ extends Area2D
 @export var top_margin := 60.0        # 离屏幕顶部至少留多少
 @export var off_margin := 1000.0       # 出生/飞出在屏幕外多少像素
 @export var aim_smooth := 8.0         # 炮管转向平滑度（越大锁得越快）
-@export var score_value := 250        # 击毁得分
+@export var score_value := 500.0        # 击毁得分
 
 # —— 激光攻击 ——
 @export var lock_time := 0.1         # 红线追踪锁定玩家多久（秒）

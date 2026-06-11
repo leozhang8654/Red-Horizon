@@ -7,6 +7,9 @@
 [ext_resource type="Texture2D" uid="uid://cyagsdtki3wdo" path="res://boss_cut/drone_left.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://ceo3u1r73c3v0" path="res://boss_cut/drone_right.png" id="6"]
 [ext_resource type="Texture2D" uid="uid://c7soj73nm3j3n" path="res://boss_cut/laser.png" id="7"]
+[ext_resource type="AudioStream" uid="uid://f1jytm6jufeq" path="res://boss激光音效.wav" id="8"]
+[ext_resource type="AudioStream" path="res://圆环攻击音效.wav" id="9"]
+[ext_resource type="AudioStream" path="res://机关枪音效.wav" id="10"]
 
 [node name="Boss" type="Area2D" unique_id=509877766]
 scale = Vector2(1.5, 1.5)
@@ -108,14 +111,28 @@ scale = Vector2(0.6, 1.5)
 texture = ExtResource("7")
 offset = Vector2(0, -1079)
 
+[node name="LaserSound" type="AudioStreamPlayer" parent="." unique_id=34433401]
+stream = ExtResource("8")
+volume_db = -4.0
+
+[node name="RingSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9")
+volume_db = -12.0
+max_polyphony = 3
+
+[node name="MgSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10")
+volume_db = -8.0
+max_polyphony = 2
+
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1787998150]
 position = Vector2(1.333313, 3.3333282)
 polygon = PackedVector2Array(-11.5, -382, 12.5, -382, 66.5, -292, 72.5, -352, 84.5, -346, 126.5, -232, 138.5, -238, 144.5, -280, 162.5, -268, 180.5, -172, 228.5, -142, 264.5, -82, 348.5, -16, 366.5, -40, 384.5, -40, 390.5, 2, 408.5, 26, 414.5, -4, 432.5, 8, 498.5, 110, 564.5, 260, 552.5, 266, 432.5, 176, 336.5, 170, 324.5, 182, 288.5, 182, 210.5, 230, 120.5, 338, 108.5, 302, 66.5, 314, 36.5, 386, 24.5, 374, -35.5, 386, -65.5, 314, -107.5, 302, -119.5, 338, -209.5, 230, -287.5, 182, -341.5, 170, -431.5, 176, -503.5, 218, -551.5, 266, -563.5, 260, -497.5, 110, -431.5, 8, -413.5, -4, -407.5, 26, -377.5, -46, -347.5, -16, -275.5, -70, -227.5, -142, -179.5, -172, -155.5, -274, -143.5, -280, -125.5, -226, -119.5, -262, -95.5, -286, -83.5, -346, -71.5, -352, -65.5, -292, -11.5, -376)
 disabled = true
 
-[node name="Solid" type="AnimatableBody2D" parent="."]
+[node name="Solid" type="AnimatableBody2D" parent="." unique_id=45803094]
 sync_to_physics = false
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Solid"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Solid" unique_id=1901210771]
 position = Vector2(1.333313, 3.3333282)
 polygon = PackedVector2Array(-11.5, -382, 12.5, -382, 66.5, -292, 72.5, -352, 84.5, -346, 126.5, -232, 138.5, -238, 144.5, -280, 162.5, -268, 180.5, -172, 228.5, -142, 264.5, -82, 348.5, -16, 366.5, -40, 384.5, -40, 390.5, 2, 408.5, 26, 414.5, -4, 432.5, 8, 498.5, 110, 564.5, 260, 552.5, 266, 432.5, 176, 336.5, 170, 324.5, 182, 288.5, 182, 210.5, 230, 120.5, 338, 108.5, 302, 66.5, 314, 36.5, 386, 24.5, 374, -35.5, 386, -65.5, 314, -107.5, 302, -119.5, 338, -209.5, 230, -287.5, 182, -341.5, 170, -431.5, 176, -503.5, 218, -551.5, 266, -563.5, 260, -497.5, 110, -431.5, 8, -413.5, -4, -407.5, 26, -377.5, -46, -347.5, -16, -275.5, -70, -227.5, -142, -179.5, -172, -155.5, -274, -143.5, -280, -125.5, -226, -119.5, -262, -95.5, -286, -83.5, -346, -71.5, -352, -65.5, -292, -11.5, -376)
