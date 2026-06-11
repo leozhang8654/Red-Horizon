@@ -20,7 +20,7 @@ var _main_cooldown := 0.0
 var _side_cooldown := 0.0
 
 # —— 血量相关 ——
-@export var max_hearts := 3            # 总共几颗爱心
+@export var max_hearts := 5           # 总共几颗爱心
 @export var invincible_time := 1.0     # 受伤后短暂无敌的秒数（避免一下被扣光）
 @export var hit_shake_strength := 500.0 # 受伤时屏幕震动强度（越大越剧烈）
 var _hearts := 0
@@ -42,8 +42,10 @@ func _ready():
 	add_to_group("player")   # 让敌人(如 Side Reaper 的炮管)能找到我来瞄准
 	# 游戏一开始，把飞机放到当前窗口的正中央
 	position = get_viewport_rect().size / 2
-	# 初始化血量（开局 3 颗爱心由 HUD 默认显示，不用在这里设）
+	# 初始化血量
 	_hearts = max_hearts
+	# 开局让血条按 max_hearts 自动生成对应数量的爱心（HUD 比玩家晚就绪，延后一步再设）
+	call_deferred("_init_hud_hearts")
 	# 被敌方子弹或敌机碰到时触发
 	_hurtbox.area_entered.connect(_on_hurt_area)
 	# 翻滚动画播完 → 结束闪避，换回普通飞机
@@ -62,6 +64,13 @@ func _physics_process(delta):
 	direction = (direction + wasd).limit_length(1.0)   # 两种输入叠加，并限制最大不超过 1（斜向不会更快）
 	velocity = direction * speed
 	move_and_slide()
+
+	# —— 撞到 Boss 实体就扣血（无敌期间 hit_by_enemy 会自动忽略，不会一下扣光）——
+	for i in get_slide_collision_count():
+		var col = get_slide_collision(i).get_collider()
+		if col and col.is_in_group("boss_solid"):
+			hit_by_enemy()
+			break
 
 	# —— 空气墙：把飞机限制在屏幕范围内，飞不出去 ——
 	var view: Vector2 = get_viewport_rect().size
@@ -157,6 +166,12 @@ func hit_by_enemy() -> void:
 		return
 	_take_damage()
 
+func _init_hud_hearts():
+	# 把血条上的爱心数量补齐到 max_hearts（多退少补）
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud and hud.has_method("set_max_hearts"):
+		hud.set_max_hearts(max_hearts)
+
 func _take_damage():
 	_hearts -= 1
 	# 扣血时再去找 HUD（此时一切都已就绪）并刷新爱心显示 + 闪烁提醒
@@ -164,6 +179,9 @@ func _take_damage():
 	if hud:
 		hud.set_hearts(_hearts)
 		hud.flash_hearts(invincible_time)   # 爱心闪烁，持续整个无敌时间
+		# 扣第 n 滴血罚 50+50*n 分：第1次-100、第2次-150、第3次-200……越往后越痛
+		var n = max_hearts - _hearts
+		hud.add_score(-(50 + 50 * n))
 	# 屏幕剧烈震动
 	var cam = get_tree().get_first_node_in_group("camera")
 	if cam:
