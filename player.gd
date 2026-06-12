@@ -43,6 +43,20 @@ var _god_mode := false   # 开发者作弊：开挂模式（暂停菜单作弊�
 var _dodge_cd := 0.0                   # 当前剩余冷却
 var _dodging := false                  # 是否正在翻滚
 
+# —— 通关谢幕演出（两段式变速：先蓄力缓加速 → 突然爆发猛加速）——
+@export var finale_ramp_time := 1.0    # 蓄力阶段时长(秒)：缓缓抬升、憋足推力。调大=憋得更久
+@export var finale_slow_accel := 350.0   # 蓄力阶段加速度(像素/秒²)：小，慢慢飘起来
+@export var finale_burst_accel := 9000.0 # 爆发阶段加速度(像素/秒²)：大，一瞬间窜出屏幕
+@export var finale_burst_shake := 300.0  # 爆发瞬间的震屏强度（点火的冲击感）
+@export var whoosh_climax := 0.85        # whoosh 音效的高潮在第几秒(分析波形得出)，用来对齐爆发瞬间
+var _whoosh_played := false              # whoosh 只播一次
+var _finale := false                   # 谢幕中：玩家交出操控，飞机自动冲出屏幕顶
+var _finale_phase := 0                 # 谢幕阶段：0=先飞回开局位置，1=蓄力+爆发
+var _finale_target := Vector2.ZERO     # 回位目标点（开局时的出生位置）
+var _finale_speed := 0.0               # 谢幕当前上冲速度（越冲越快）
+var _finale_t := 0.0                   # 蓄力/爆发已进行秒数
+var _finale_burst_done := false        # 爆发震屏只来一次
+
 func _ready():
 	add_to_group("player")   # 让敌人(如 Side Reaper 的炮管)能找到我来瞄准
 	# 游戏一开始，把飞机放到屏幕水平居中、偏下的位置（高度由 start_height_ratio 决定）
@@ -61,6 +75,41 @@ func _ready():
 	_side_sound.volume_db = side_volume_db
 
 func _physics_process(delta):
+	# —— 通关谢幕：接管一切操控——先飞回开局位置，再蓄力、爆发冲出屏幕顶 ——
+	if _finale:
+		# 阶段 0：用正常飞行速度回到开局出生点（途中机身按移动方向自然侧倾）
+		if _finale_phase == 0:
+			var to_target := _finale_target - position
+			if to_target.length() <= speed * delta:
+				position = _finale_target      # 到位：对齐目标点，进入蓄力
+				_finale_phase = 1
+			else:
+				var dir := to_target.normalized()
+				position += dir * speed * delta
+				var tilt := deg_to_rad(max_tilt_deg) * dir.x
+				_sprite.rotation = lerp_angle(_sprite.rotation, tilt, tilt_speed * delta)
+			return
+		# 阶段 1：蓄力 → 爆发
+		_finale_t += delta
+		# whoosh 提前 whoosh_climax 秒起播：渐强铺在蓄力期，最响那一下正好压在爆发瞬间
+		if not _whoosh_played and _finale_t >= max(finale_ramp_time - whoosh_climax, 0.0):
+			_whoosh_played = true
+			$Whoosh.play()
+		if _finale_t < finale_ramp_time:
+			# 蓄力阶段：小加速度，缓缓飘起来（憋着劲）
+			_finale_speed += finale_slow_accel * delta
+		else:
+			# 爆发阶段：加速度猛增，一瞬间窜出去
+			if not _finale_burst_done:
+				_finale_burst_done = true
+				var cam = get_tree().get_first_node_in_group("camera")
+				if cam:
+					cam.shake(finale_burst_shake)   # 点火瞬间震一下，强化冲击感
+			_finale_speed += finale_burst_accel * delta
+		position.y -= _finale_speed * delta   # 直接改坐标，不走碰撞（免得被 Boss 残骸挡住）
+		_sprite.rotation = lerp_angle(_sprite.rotation, 0.0, tilt_speed * delta)
+		return
+
 	# —— 移动：方向键 + WASD 都能用 ——
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var wasd := Vector2(
@@ -158,6 +207,9 @@ func _shoot_side():
 	parent.add_child(right)
 
 func _on_hurt_area(area):
+	# 谢幕演出中完全无敌（防残留流弹搅局）
+	if _finale:
+		return
 	# 无敌中不再扣血
 	if _invincible > 0.0:
 		return
@@ -172,9 +224,25 @@ func _on_hurt_area(area):
 
 func hit_by_enemy() -> void:
 	# 供敌人(如 Side Reaper 激光)调用：无敌中则忽略，否则扣血
+	if _finale:
+		return   # 谢幕演出中完全无敌
 	if _invincible > 0.0:
 		return
 	_take_damage()
+
+# 这局是否一滴血没掉（结算页的 PERFECT 标记用）
+func took_no_damage() -> bool:
+	return _hearts >= max_hearts
+
+# 通关谢幕：由结算画面(victory.gd)调用——先飞回开局位置，再蓄力爆发冲出屏幕顶
+func start_finale() -> void:
+	_finale = true
+	_finale_phase = 0
+	# 回位目标 = 开局出生点（屏幕水平居中、高度按 start_height_ratio）
+	var vp := get_viewport_rect().size
+	_finale_target = Vector2(vp.x / 2, vp.y * start_height_ratio)
+	_invincible = 0.0
+	_sprite.modulate.a = 1.0   # 清掉可能残留的受伤闪烁，干干净净地谢幕
 
 func _init_hud_hearts():
 	# 把血条上的爱心数量补齐到 max_hearts（多退少补）

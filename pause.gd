@@ -92,6 +92,10 @@ func _unhandled_input(event):
 	var ss = get_tree().get_first_node_in_group("start_screen")
 	if ss and ss.visible:
 		return
+	# 通关结算页正显示时，ESC 同样不插手（避免暂停菜单叠在结算页上）
+	var vic = get_tree().get_first_node_in_group("victory")
+	if vic and vic.visible:
+		return
 
 	# ESC：只负责“打开暂停”（继续游戏改用空格、重开用 R，都在 _input 里处理）
 	if event.is_action_pressed("ui_cancel") and not visible:

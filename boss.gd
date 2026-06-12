@@ -373,4 +373,8 @@ func _die():
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud:
 		hud.add_score(score_value)
+	# 通知通关结算画面：Boss 已被击毁（它会先停表，等死亡演出放完再亮"任务完成"）
+	var victory = get_tree().get_first_node_in_group("victory")
+	if victory:
+		victory.boss_defeated()
 	queue_free()

@@ -6,7 +6,11 @@ const HEART_TEX := preload("res://health icon.png")   # 爱心图标
 const INFINITY_TEX := preload("res://infinity icon.png")   # ♾️ 图标(无限血量作弊时显示)
 
 @onready var _score_label: Label = $Score   # 左上角的分数文字
+@onready var _time_label: Label = $TimeLabel  # 左上角的计时器文字
 @onready var _hearts_box: Control = $Hearts  # 爱心容器（整体闪烁用）
+
+var _time := 0.0            # 本局已经玩了多少秒（真实游戏时间，不含标题页/暂停）
+var _timer_running := false  # 计时器在走吗？（按空格开始后 true，死亡瞬间 false）
 var _hearts: Array = []                      # 当前所有爱心图标节点（动态生成）
 var _infinity_icon: TextureRect = null       # ♾️ 图标节点（第一次用到时才创建）
 var _infinite := false                       # 当前是否处于“无限血量”显示状态
@@ -53,6 +57,12 @@ func set_max_hearts(n: int) -> void:
 	set_hearts(n)
 
 func _process(delta):
+	# 计时器走表：游戏开始后才走；HUD 是 PROCESS_MODE_ALWAYS（暂停时也在跑），
+	# 所以要自己判断"全场暂停时不计时"，否则开着暂停菜单时间也在涨
+	if _timer_running and not get_tree().paused:
+		_time += delta
+		_update_time_label()
+
 	# 让显示的分数一点点追真实分数（街机滚动记分牌效果，加分往上滚、减分往下滚）
 	if _display_score < _score:
 		# 往上滚（加分）：负数仍显示红色，到 0 以上才用平时的颜色
@@ -86,6 +96,7 @@ func reveal_hearts() -> void:
 	if _hearts_revealed:
 		return
 	_hearts_revealed = true
+	_timer_running = true   # 玩家按空格正式开局 → 计时器开始走
 	var tw := create_tween()   # tween = 引擎自带的"补间动画"，让数值在一段时间内平滑变化
 	tw.tween_property(_hearts_box, "modulate:a", 1.0, hearts_fade_in_duration)
 
@@ -123,8 +134,28 @@ func _update_score_label() -> void:
 	# 用显示值（取整、去掉负号）来画；负数靠红色表示，不显示负号
 	_score_label.text = "%06d" % int(abs(_display_score))   # 6 位前导零，街机记分牌风格，如 000100
 
+# 把秒数刷成"分:秒"画到屏幕上，比如 83 秒 → 01:23
+# （冒号是后来用 Python 画进分数字体图里的，和数字同款像素风）
+func _update_time_label() -> void:
+	var total := int(_time)
+	_time_label.text = "%02d:%02d" % [total / 60, total % 60]
+
+# 把当前用时报出去（游戏结束画面会来问），格式同屏幕显示
+func get_time_text() -> String:
+	var total := int(_time)
+	return "%02d:%02d" % [total / 60, total % 60]
+
+# 把通关用时按"秒数"报出去（通关结算画面拿它算时间分）
+func get_time() -> float:
+	return _time
+
+# 停表（Boss 被击毁那一刻，通关结算画面会来调用，免得爆炸演出那几秒也被算进用时）
+func stop_timer() -> void:
+	_timer_running = false
+
 # 让显示立刻追上真实分数，不再滚动（游戏结束瞬间调用，保证和结算分数一致）
 func snap_score() -> void:
+	_timer_running = false   # 玩家阵亡瞬间停表，慢动作演出期间时间不再涨
 	_display_score = float(_score)
 	var col = score_lose_color if _score < 0 else _score_normal_color
 	_score_label.add_theme_color_override("font_color", col)

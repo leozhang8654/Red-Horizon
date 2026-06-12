@@ -21,6 +21,10 @@
 [ext_resource type="Texture2D" uid="uid://duab62qhdsj6h" path="res://标题_透明.png" id="20_title"]
 [ext_resource type="FontFile" uid="uid://dltbhso1dq4sl" path="res://分数字体.fnt" id="21_scorefont"]
 [ext_resource type="FontFile" uid="uid://dr5arval66lmd" path="res://fusion-pixel-12px-proportional-zh_hans.ttf" id="22_pixfont"]
+[ext_resource type="Script" uid="uid://cb31vpm8lrejk" path="res://victory.gd" id="23_vic"]
+[ext_resource type="AudioStream" path="res://dragon-studio-bell-ring-390294.mp3" id="24_ding"]
+[ext_resource type="AudioStream" path="res://freesound_community-traditional-stamp-44189.mp3" id="25_stamp"]
+[ext_resource type="AudioStream" path="res://dragon-studio-whoosh-cinematic-376875.mp3" id="26_whoosh"]
 [ext_resource type="Texture2D" uid="uid://dhgm8d0eyfwfx" path="res://dodge_frames/roll_1.png" id="roll1"]
 [ext_resource type="Texture2D" uid="uid://ksc1mjknv5kq" path="res://dodge_frames/roll_2.png" id="roll2"]
 [ext_resource type="Texture2D" uid="uid://bvc4k2usg462p" path="res://dodge_frames/roll_3.png" id="roll3"]
@@ -32,8 +36,8 @@
 [ext_resource type="Texture2D" uid="uid://yjm4hbb18m1w" path="res://dodge_frames/roll_9.png" id="roll9"]
 [ext_resource type="Texture2D" uid="uid://bomf50ph3ueht" path="res://dodge_frames/roll_10.png" id="roll10"]
 [ext_resource type="Texture2D" uid="uid://df56nyxnsf4f2" path="res://dodge_frames/roll_11.png" id="roll11"]
-[ext_resource type="Texture2D" path="res://switch_on.png" id="sw_on"]
-[ext_resource type="Texture2D" path="res://switch_off.png" id="sw_off"]
+[ext_resource type="Texture2D" uid="uid://beyg20oehqnv7" path="res://switch_off.png" id="sw_off"]
+[ext_resource type="Texture2D" uid="uid://cncq8jmwh3kbl" path="res://switch_on.png" id="sw_on"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_roll"]
 animations = [{
@@ -76,6 +80,18 @@ animations = [{
 "speed": 20.0
 }]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rank"]
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 12
+border_width_top = 12
+border_width_right = 12
+border_width_bottom = 12
+border_color = Color(1, 0.85, 0.3, 1)
+corner_radius_top_left = 170
+corner_radius_top_right = 170
+corner_radius_bottom_right = 170
+corner_radius_bottom_left = 170
+
 [node name="Node2D" type="Node2D" unique_id=787609847]
 
 [node name="Background" type="Parallax2D" parent="." unique_id=538206389]
@@ -94,6 +110,8 @@ centered = false
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1630520373]
 position = Vector2(576, 324)
 script = ExtResource("1_0xm2m")
+finale_burst_accel = 25000.0
+finale_burst_shake = 700.0
 
 [node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=727904152]
 scale = Vector2(0.3032, 0.3032)
@@ -126,6 +144,9 @@ stream = ExtResource("14_sidesfx")
 volume_db = -25.0
 max_polyphony = 6
 
+[node name="Whoosh" type="AudioStreamPlayer" parent="Player"]
+stream = ExtResource("26_whoosh")
+
 [node name="WaveSpawner" type="Node2D" parent="." unique_id=1965328490]
 script = ExtResource("8_wave")
 enemy_scene = ExtResource("7_enemy")
@@ -150,6 +171,15 @@ theme_override_fonts/font = ExtResource("21_scorefont")
 theme_override_font_sizes/font_size = 204
 text = "000000"
 horizontal_alignment = 1
+
+[node name="TimeLabel" type="Label" parent="HUD" unique_id=65675096]
+offset_left = 36.0
+offset_top = 48.0
+offset_right = 436.0
+offset_bottom = 188.0
+theme_override_fonts/font = ExtResource("21_scorefont")
+theme_override_font_sizes/font_size = 100
+text = "00:00"
 
 [node name="Hearts" type="HBoxContainer" parent="HUD" unique_id=1700191527]
 anchors_preset = 2
@@ -221,6 +251,185 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 36
 text = "按 空格键 重新开始"
+horizontal_alignment = 1
+
+[node name="Victory" type="CanvasLayer" parent="." unique_id=1322566337]
+script = ExtResource("23_vic")
+
+[node name="Ding" type="AudioStreamPlayer" parent="Victory"]
+stream = ExtResource("24_ding")
+volume_db = -6.0
+max_polyphony = 4
+
+[node name="StampSound" type="AudioStreamPlayer" parent="Victory"]
+stream = ExtResource("25_stamp")
+volume_db = -2.0
+
+[node name="Bg" type="ColorRect" parent="Victory" unique_id=101196524]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.75)
+
+[node name="Center" type="CenterContainer" parent="Victory" unique_id=657306677]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="Victory/Center" unique_id=1896504761]
+layout_mode = 2
+theme_override_constants/separation = 56
+
+[node name="Title" type="Label" parent="Victory/Center/VBox" unique_id=1387344333]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 280
+text = "任 务 完 成"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Victory/Center/VBox" unique_id=769334348]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.72, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 60
+text = "M I S S I O N   C O M P L E T E"
+horizontal_alignment = 1
+
+[node name="Gap1" type="Control" parent="Victory/Center/VBox" unique_id=1925309099]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+
+[node name="Body" type="HBoxContainer" parent="Victory/Center/VBox" unique_id=1520003393]
+layout_mode = 2
+theme_override_constants/separation = 110
+
+[node name="Stats" type="VBoxContainer" parent="Victory/Center/VBox/Body" unique_id=1683251978]
+custom_minimum_size = Vector2(1250, 0)
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="KillRow" type="HBoxContainer" parent="Victory/Center/VBox/Body/Stats" unique_id=411623815]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Victory/Center/VBox/Body/Stats/KillRow" unique_id=820219296]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.8, 0.88, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "击破得分"
+
+[node name="Val" type="Label" parent="Victory/Center/VBox/Body/Stats/KillRow" unique_id=1326752921]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "0"
+
+[node name="TimeRow" type="HBoxContainer" parent="Victory/Center/VBox/Body/Stats" unique_id=1458485498]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Victory/Center/VBox/Body/Stats/TimeRow" unique_id=891518163]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.8, 0.88, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "通关用时"
+
+[node name="Val" type="Label" parent="Victory/Center/VBox/Body/Stats/TimeRow" unique_id=225924227]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "00:00"
+
+[node name="BonusRow" type="HBoxContainer" parent="Victory/Center/VBox/Body/Stats" unique_id=1385703428]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Victory/Center/VBox/Body/Stats/BonusRow" unique_id=260868746]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.8, 0.88, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "时间分"
+
+[node name="Val" type="Label" parent="Victory/Center/VBox/Body/Stats/BonusRow" unique_id=1914661868]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 95
+text = "+0"
+
+[node name="Divider" type="ColorRect" parent="Victory/Center/VBox/Body/Stats" unique_id=364629115]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+color = Color(0.45, 0.45, 0.6, 0.55)
+
+[node name="FinalRow" type="HBoxContainer" parent="Victory/Center/VBox/Body/Stats" unique_id=1531874345]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Victory/Center/VBox/Body/Stats/FinalRow" unique_id=1314795614]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 120
+text = "最终得分"
+
+[node name="Val" type="Label" parent="Victory/Center/VBox/Body/Stats/FinalRow" unique_id=228425553]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 120
+text = "0"
+
+[node name="RankBox" type="CenterContainer" parent="Victory/Center/VBox/Body" unique_id=503659218]
+layout_mode = 2
+
+[node name="RankCol" type="VBoxContainer" parent="Victory/Center/VBox/Body/RankBox"]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="RankCircle" type="PanelContainer" parent="Victory/Center/VBox/Body/RankBox/RankCol" unique_id=836953158]
+custom_minimum_size = Vector2(340, 340)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_styles/panel = SubResource("StyleBoxFlat_rank")
+
+[node name="Rank" type="Label" parent="Victory/Center/VBox/Body/RankBox/RankCol/RankCircle" unique_id=189144502]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 190
+text = "S"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Perfect" type="Label" parent="Victory/Center/VBox/Body/RankBox/RankCol"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 55
+text = "PERFECT 无伤"
+horizontal_alignment = 1
+
+[node name="HighScore" type="Label" parent="Victory/Center/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 55
+text = "历史最高  0"
+horizontal_alignment = 1
+
+[node name="Gap2" type="Control" parent="Victory/Center/VBox" unique_id=1274293188]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+
+[node name="Hint" type="Label" parent="Victory/Center/VBox" unique_id=1024232600]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 60
+text = "按 空格 再来一局"
 horizontal_alignment = 1
 
 [node name="PauseMenu" type="CanvasLayer" parent="." unique_id=1699100570]
@@ -313,11 +522,11 @@ theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "跳转"
 
-[node name="GodRow" type="HBoxContainer" parent="PauseMenu/Center/VBox/DevPanel"]
+[node name="GodRow" type="HBoxContainer" parent="PauseMenu/Center/VBox/DevPanel" unique_id=1528280720]
 layout_mode = 2
 alignment = 1
 
-[node name="GodToggle" type="CheckButton" parent="PauseMenu/Center/VBox/DevPanel/GodRow"]
+[node name="GodToggle" type="CheckButton" parent="PauseMenu/Center/VBox/DevPanel/GodRow" unique_id=1131093169]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_constants/h_separation = 20
