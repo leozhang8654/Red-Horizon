@@ -50,10 +50,10 @@ extends Area2D
 @export var laser_bank_speed := 6.0     # 预警时船身摆到位的平滑速度
 @export var laser_hit_width := 140.0    # 激光命中判定半宽（像素，越小越好躲）
 
-var _explosion_scene := preload("res://explosion.tscn")
 var _bullet_scene := preload("res://boss_bullet.tscn")   # Boss 核心子弹（环形弹幕）
 var _turret_bullet_scene := preload("res://boss_turret_bullet.tscn")   # 炮台机枪子弹
 var _barrel_explosion_scene := preload("res://barrel_explosion.tscn")   # 炮台专用爆炸
+var _death_anim_scene := preload("res://boss_death_anim.tscn")   # 死亡演出(5秒爆炸解体动画)
 var _hp := 0.0
 var _dead := false
 var _entered := false      # 是否已压入就位
@@ -361,21 +361,16 @@ func _on_area_entered(area):
 			_die()
 
 func _die():
-	# Boss 很大 → 在机身多个位置接连放爆炸，做出“连环炸开”的效果
-	var offsets := [
-		Vector2(0, 0), Vector2(-220, -40), Vector2(220, -40),
-		Vector2(-120, 120), Vector2(120, 120), Vector2(0, -160),
-	]
-	for off in offsets:
-		var fx = _explosion_scene.instantiate()
-		fx.global_position = global_position + off
-		fx.scale = Vector2(0.6, 0.6)   # 比普通爆炸大一些
-		get_parent().add_child(fx)
+	# 播放 5 秒的死亡演出动画(boss_death_anim.tscn)：起火→大爆炸→解体→碎片四散。
+	# 动画里的 Boss 宽 543 像素 → 按真机身的显示宽度自动缩放，大小就能对上。
+	var anim = _death_anim_scene.instantiate()
+	var body_width: float = $Body.texture.get_width() * $Body.global_scale.x
+	var s := body_width / 543.0
+	anim.scale = Vector2(s, s)
+	anim.rotation = global_rotation                # 继承当下的侧倾角(激光横扫中被打死也不跳变)
+	get_parent().add_child(anim)
+	anim.global_position = $Body.global_position   # 对准机身中心(动画自带偏移校正)
 	var hud = get_tree().get_first_node_in_group("hud")
 	if hud:
 		hud.add_score(score_value)
-	# 屏幕狠狠震一下
-	var cam = get_tree().get_first_node_in_group("camera")
-	if cam:
-		cam.shake(800.0)
 	queue_free()

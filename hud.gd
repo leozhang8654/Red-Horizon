@@ -3,16 +3,23 @@ extends CanvasLayer
 # 屏幕左下角的爱心血条。玩家扣血时调用 set_hearts() 更新显示。
 
 const HEART_TEX := preload("res://health icon.png")   # 爱心图标
+const INFINITY_TEX := preload("res://infinity icon.png")   # ♾️ 图标(无限血量作弊时显示)
 
 @onready var _score_label: Label = $Score   # 左上角的分数文字
 @onready var _hearts_box: Control = $Hearts  # 爱心容器（整体闪烁用）
 var _hearts: Array = []                      # 当前所有爱心图标节点（动态生成）
+var _infinity_icon: TextureRect = null       # ♾️ 图标节点（第一次用到时才创建）
+var _infinite := false                       # 当前是否处于“无限血量”显示状态
 var _score := 0                              # 当前分数（真实值，加分时立刻到位）
 var _display_score := 0.0                     # 屏幕上正在显示的分数（一点点往上追真实值）
 var _heart_flash_t := 0.0                    # 爱心闪烁还剩多久
 
 # 滚动追分时长：不管一次加/减多少分，都用这么多秒滚完。调小=更快滚完。
 @export var score_roll_duration := 1.5
+
+# 血条渐显时长（秒）：标题页按空格开始后，爱心从透明慢慢浮现要花多久。调大=浮现更慢
+@export var hearts_fade_in_duration := 1.2
+var _hearts_revealed := false   # 血条是否已经渐显过（防止重复触发）
 
 var _roll_speed := 0.0   # 当前这轮滚动的速度(每秒多少分)，每次加减分时按差距现算
 # 减分时分数显示的颜色（默认红色），调这里换颜色
@@ -27,6 +34,7 @@ func _ready():
 	# 收集场景里已经摆好的爱心作为初始（之后由玩家的 max_hearts 自动补齐/删减）
 	for c in _hearts_box.get_children():
 		_hearts.append(c)
+	_hearts_box.modulate.a = 0.0   # 标题页期间血条先藏起来，等游戏开始再渐显
 	_update_score_label()
 
 # 玩家开局会调用：告诉 HUD 一共几颗心 → 自动补齐或删多余，血条数量永远和 max_hearts 一致
@@ -73,10 +81,36 @@ func _process(delta):
 func flash_hearts(duration: float) -> void:
 	_heart_flash_t = duration
 
-# 显示 n 个爱心（其余隐藏）
+# 血条渐显：标题页按空格开始游戏时，开始画面会调用这里
+func reveal_hearts() -> void:
+	if _hearts_revealed:
+		return
+	_hearts_revealed = true
+	var tw := create_tween()   # tween = 引擎自带的"补间动画"，让数值在一段时间内平滑变化
+	tw.tween_property(_hearts_box, "modulate:a", 1.0, hearts_fade_in_duration)
+
+# 显示 n 个爱心（其余隐藏）；无限血量模式下爱心始终隐藏，由 ♾️ 顶替
 func set_hearts(n: int) -> void:
 	for i in range(_hearts.size()):
-		_hearts[i].visible = i < n
+		_hearts[i].visible = (i < n) and not _infinite
+
+# 无限血量作弊的显示开关：开 = 藏起所有爱心、亮出 ♾️；关 = 收起 ♾️
+# （关掉后玩家脚本会再调一次 set_hearts() 恢复真实血量显示）
+func set_infinite_hearts(on: bool) -> void:
+	_infinite = on
+	if on and _infinity_icon == null:
+		# 第一次开启时创建 ♾️ 图标，规格和爱心一致(高192)，宽按图片比例约2:1
+		_infinity_icon = TextureRect.new()
+		_infinity_icon.texture = INFINITY_TEX
+		_infinity_icon.custom_minimum_size = Vector2(384, 192)
+		_infinity_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_infinity_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_hearts_box.add_child(_infinity_icon)
+	if _infinity_icon:
+		_infinity_icon.visible = on
+	if on:
+		for h in _hearts:
+			h.visible = false
 
 # 加分：敌人死的时候会调用它
 func add_score(points: int) -> void:

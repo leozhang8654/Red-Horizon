@@ -32,6 +32,8 @@
 [ext_resource type="Texture2D" uid="uid://yjm4hbb18m1w" path="res://dodge_frames/roll_9.png" id="roll9"]
 [ext_resource type="Texture2D" uid="uid://bomf50ph3ueht" path="res://dodge_frames/roll_10.png" id="roll10"]
 [ext_resource type="Texture2D" uid="uid://df56nyxnsf4f2" path="res://dodge_frames/roll_11.png" id="roll11"]
+[ext_resource type="Texture2D" path="res://switch_on.png" id="sw_on"]
+[ext_resource type="Texture2D" path="res://switch_off.png" id="sw_off"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_roll"]
 animations = [{
@@ -310,6 +312,20 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "跳转"
+
+[node name="GodRow" type="HBoxContainer" parent="PauseMenu/Center/VBox/DevPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="GodToggle" type="CheckButton" parent="PauseMenu/Center/VBox/DevPanel/GodRow"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 44
+theme_override_icons/checked = ExtResource("sw_on")
+theme_override_icons/unchecked = ExtResource("sw_off")
+text = "开挂模式"
 
 [node name="StartScreen" type="CanvasLayer" parent="." unique_id=26778887]
 layer = 5

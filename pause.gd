@@ -9,6 +9,7 @@ const SETTINGS_PATH := "user://settings.cfg"   # 存设置(音量等)的文件
 @onready var _dev_panel: VBoxContainer = $Center/VBox/DevPanel
 @onready var _wave_edit: LineEdit = $Center/VBox/DevPanel/Row/WaveEdit
 @onready var _jump_btn: Button = $Center/VBox/DevPanel/Row/JumpBtn
+@onready var _god_toggle: CheckButton = $Center/VBox/DevPanel/GodRow/GodToggle
 @onready var _vol_slider: HSlider = $Center/VBox/VolumeRow/VolSlider
 
 func _ready():
@@ -18,6 +19,7 @@ func _ready():
 	_dev_panel.visible = false
 	_pass_edit.text_changed.connect(_on_pass_changed)   # 边输边检查密码
 	_jump_btn.pressed.connect(_on_jump)                 # 点“跳转”
+	_god_toggle.toggled.connect(_on_god_toggled)        # 拨“开挂模式”开关
 	# —— 总音量：读取上次设置 → 应用 → 让滑条联动 ——
 	var v := _load_volume()
 	_vol_slider.value = v
@@ -51,6 +53,12 @@ func _save_volume(v: float) -> void:
 
 func _on_pass_changed(t: String):
 	_dev_panel.visible = (t == DEV_PASSWORD)            # 密码正确才显示跳波面板
+
+# 开挂模式开关：转告玩家开/关（免伤+攻击力翻倍，血条显示成 ♾️）
+func _on_god_toggled(on: bool):
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_method("set_god_mode"):
+		player.set_god_mode(on)
 
 func _on_jump():
 	var n := int(_wave_edit.text)

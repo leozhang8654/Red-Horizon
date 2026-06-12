@@ -25,6 +25,8 @@ var _side_cooldown := 0.0
 @export var hit_shake_strength := 500.0 # 受伤时屏幕震动强度（越大越剧烈）
 var _hearts := 0
 var _invincible := 0.0
+var _god_mode := false   # 开发者作弊：开挂模式（暂停菜单作弊面板里开关）
+@export var god_damage_mult := 3.0   # 开挂模式的攻击力倍数（主副炮都乘这个数）
 @onready var _hurtbox: Area2D = $Hurtbox   # 玩家受伤判定区
 @onready var _main_sound: AudioStreamPlayer = $MainSound   # 主炮开火音效
 @onready var _side_sound: AudioStreamPlayer = $SideSound   # 副炮开火音效
@@ -35,13 +37,17 @@ var _invincible := 0.0
 # —— 闪避(翻滚)相关 ——
 @export var dodge_invincible := 0.55   # 闪避无敌持续秒数
 @export var dodge_cooldown := 2.0      # 闪避冷却秒数（两次闪避的最短间隔）
+
+# 开局时飞机在屏幕里的"高度位置"：0=贴屏幕顶、0.5=正中、1=贴屏幕底。调大=飞机更靠下
+@export var start_height_ratio := 0.78
 var _dodge_cd := 0.0                   # 当前剩余冷却
 var _dodging := false                  # 是否正在翻滚
 
 func _ready():
 	add_to_group("player")   # 让敌人(如 Side Reaper 的炮管)能找到我来瞄准
-	# 游戏一开始，把飞机放到当前窗口的正中央
-	position = get_viewport_rect().size / 2
+	# 游戏一开始，把飞机放到屏幕水平居中、偏下的位置（高度由 start_height_ratio 决定）
+	var vp := get_viewport_rect().size
+	position = Vector2(vp.x / 2, vp.y * start_height_ratio)
 	# 初始化血量
 	_hearts = max_hearts
 	# 开局让血条按 max_hearts 自动生成对应数量的爱心（HUD 比玩家晚就绪，延后一步再设）
@@ -131,6 +137,8 @@ func _shoot_main():
 	# 主炮：从飞机正中间发射
 	var bullet := _bullet_scene.instantiate()
 	bullet.position = position + Vector2(0, -muzzle_offset)
+	if _god_mode:
+		bullet.damage *= god_damage_mult   # 开挂模式：攻击力翻倍
 	get_parent().add_child(bullet)
 
 func _shoot_side():
@@ -140,11 +148,13 @@ func _shoot_side():
 	# 左副炮
 	var left := _side_scene.instantiate()
 	left.position = position + Vector2(-side_offset_x, -side_offset_y)
-	parent.add_child(left)
-
 	# 右副炮
 	var right := _side_scene.instantiate()
 	right.position = position + Vector2(side_offset_x, -side_offset_y)
+	if _god_mode:
+		left.damage *= god_damage_mult    # 开挂模式：攻击力翻倍
+		right.damage *= god_damage_mult
+	parent.add_child(left)
 	parent.add_child(right)
 
 func _on_hurt_area(area):
@@ -172,7 +182,18 @@ func _init_hud_hearts():
 	if hud and hud.has_method("set_max_hearts"):
 		hud.set_max_hearts(max_hearts)
 
+func set_god_mode(on: bool) -> void:
+	# 开发者作弊：开挂模式。开着时完全免伤 + 攻击力×god_damage_mult；血条显示成 ♾️
+	_god_mode = on
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud and hud.has_method("set_infinite_hearts"):
+		hud.set_infinite_hearts(on)
+		if not on:
+			hud.set_hearts(_hearts)   # 关掉作弊 → 恢复显示真实血量
+
 func _take_damage():
+	if _god_mode:
+		return   # 开挂模式中：不扣血、不罚分、不震屏
 	_hearts -= 1
 	# 扣血时再去找 HUD（此时一切都已就绪）并刷新爱心显示 + 闪烁提醒
 	var hud = get_tree().get_first_node_in_group("hud")
