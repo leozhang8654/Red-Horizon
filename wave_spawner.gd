@@ -10,6 +10,8 @@ extends Node2D
 @export var apex_y := 700.0            # 最前(正中)那架悬浮的高度
 @export var enemy_scale := 1.0       # 敌机大小(在原 0.33 基础上放大 2.5 倍)
 @export var spawn_delay := 5.0       # 游戏开始后等几秒再放出这波敌人
+@export var sway_phase_step := 1.2   # 相邻两架小兵摆动节拍错开多少(0=全队齐晃, 越大波浪越明显)
+@export var dive_interval := 5.0     # 第一波每隔几秒抽一架小兵俯冲玩家(0=关闭俯冲)
 @export var reaper_delay := 5.0      # 小兵全灭后，等几秒再放出 Side Reaper
 @export var reaper_count := 3        # 一共放出几架 Side Reaper
 @export var reaper_interval := 0.5  # 每架之间的出现间隔（秒）
@@ -25,6 +27,7 @@ var _reaper_spawned := false    # Side Reaper 是否已登场
 var _reapers_listed := false    # 第二波是否“全部”已生成（生成中途别误判全灭）
 var _boss_spawned := false      # 第三波 Boss 是否已登场
 var _gen := 0                   # “代次”计数：每次跳波 +1，用来作废残留的延时定时器
+var _dive_cd := 0.0             # 距离下一次抽签俯冲还剩几秒
 
 func _ready():
 	add_to_group("spawner")     # 让暂停菜单的作弊功能能找到我
@@ -50,11 +53,19 @@ func _spawn_wave():
 		e.scale = Vector2(enemy_scale, enemy_scale)
 		e.position = Vector2(tx, ty - 500.0)     # 先放在屏幕上方外面
 		e.target_y = ty                          # 告诉它飞到哪悬停
+		e.sway_phase = i * sway_phase_step       # 每架节拍错开 → 整队呈波浪
 		add_child(e)
 		_enemies.append(e)                       # 记下来，用于判断是否全灭
 	_wave_done = true
+	_dive_cd = dive_interval                     # 第一次俯冲也等满一个间隔再开始
 
 func _process(_delta):
+	# —— 第一波期间：每隔 dive_interval 秒抽一架活着的小兵去俯冲 ——
+	if _wave_done and not _reaper_spawned and dive_interval > 0.0:
+		_dive_cd -= _delta
+		if _dive_cd <= 0.0:
+			_dive_cd = dive_interval
+			_launch_random_dive()
 	# —— 第一波 → 第二波：杂兵全灭后放出 Side Reaper ——
 	if _wave_done and not _reaper_spawned:
 		for e in _enemies:
@@ -70,6 +81,16 @@ func _process(_delta):
 				return
 		_boss_spawned = true            # 上锁
 		_spawn_boss_after_delay()
+
+# 从“活着且正在安稳悬浮”的小兵里随机抽一架，让它俯冲玩家
+func _launch_random_dive():
+	var cands := []
+	for e in _enemies:
+		if is_instance_valid(e) and e.can_dive():
+			cands.append(e)
+	if cands.is_empty():
+		return            # 暂时没人能冲(都死了/还在进场/有人正在冲) → 这轮跳过
+	cands.pick_random().start_dive()
 
 func _spawn_reaper_after_delay():
 	var g := _gen

@@ -8,12 +8,13 @@
 [ext_resource type="Texture2D" uid="uid://ceo3u1r73c3v0" path="res://boss_cut/drone_right.png" id="6"]
 [ext_resource type="Texture2D" uid="uid://c7soj73nm3j3n" path="res://boss_cut/laser.png" id="7"]
 [ext_resource type="AudioStream" uid="uid://f1jytm6jufeq" path="res://boss激光音效.wav" id="8"]
-[ext_resource type="AudioStream" path="res://圆环攻击音效.wav" id="9"]
-[ext_resource type="AudioStream" path="res://机关枪音效.wav" id="10"]
+[ext_resource type="AudioStream" uid="uid://helrbt1xl77d" path="res://圆环攻击音效.wav" id="9"]
+[ext_resource type="AudioStream" uid="uid://rkdvesp3b6f1" path="res://机关枪音效.wav" id="10"]
 
 [node name="Boss" type="Area2D" unique_id=509877766]
 scale = Vector2(1.5, 1.5)
 script = ExtResource("1")
+max_hp = 500.0
 
 [node name="Body" type="Sprite2D" parent="." unique_id=65991666]
 position = Vector2(1.5, 116)
@@ -113,14 +114,13 @@ offset = Vector2(0, -1079)
 
 [node name="LaserSound" type="AudioStreamPlayer" parent="." unique_id=34433401]
 stream = ExtResource("8")
-volume_db = -4.0
 
-[node name="RingSound" type="AudioStreamPlayer" parent="."]
+[node name="RingSound" type="AudioStreamPlayer" parent="." unique_id=375649819]
 stream = ExtResource("9")
 volume_db = -12.0
 max_polyphony = 3
 
-[node name="MgSound" type="AudioStreamPlayer" parent="."]
+[node name="MgSound" type="AudioStreamPlayer" parent="." unique_id=1544808188]
 stream = ExtResource("10")
 volume_db = -8.0
 max_polyphony = 2

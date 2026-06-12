@@ -26,3 +26,7 @@ func _input(event):
 func _start_game():
 	visible = false
 	get_tree().paused = false                # 解冻 → 第一波开始倒计时
+	# 喊一声 HUD：游戏开始了，把血条慢慢显示出来
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud:
+		hud.reveal_hearts()
