@@ -4,13 +4,15 @@ extends CanvasLayer
 
 const DEV_PASSWORD := "123456"
 const SETTINGS_PATH := "user://settings.cfg"   # 存设置(音量等)的文件
+const DEFAULT_MUSIC_VOLUME := 1.0              # 音乐默认音量(0~1)。响度上限已烤进 BGM 节点的 Volume dB，满格=合适音量
 
 @onready var _pass_edit: LineEdit = $Center/VBox/PassEdit
 @onready var _dev_panel: VBoxContainer = $Center/VBox/DevPanel
 @onready var _wave_edit: LineEdit = $Center/VBox/DevPanel/Row/WaveEdit
 @onready var _jump_btn: Button = $Center/VBox/DevPanel/Row/JumpBtn
 @onready var _god_toggle: CheckButton = $Center/VBox/DevPanel/GodRow/GodToggle
-@onready var _vol_slider: HSlider = $Center/VBox/VolumeRow/VolSlider
+@onready var _music_slider: HSlider = $Center/VBox/MusicRow/MusicSlider
+@onready var _sfx_slider: HSlider = $Center/VBox/SfxRow/SfxSlider
 
 func _ready():
 	add_to_group("pause_menu")
@@ -20,35 +22,43 @@ func _ready():
 	_pass_edit.text_changed.connect(_on_pass_changed)   # 边输边检查密码
 	_jump_btn.pressed.connect(_on_jump)                 # 点“跳转”
 	_god_toggle.toggled.connect(_on_god_toggled)        # 拨“开挂模式”开关
-	# —— 总音量：读取上次设置 → 应用 → 让滑条联动 ——
-	var v := _load_volume()
-	_vol_slider.value = v
-	_apply_volume(v)
-	_vol_slider.value_changed.connect(_on_volume_changed)
+	# —— 音量：音乐/音效各一条总线(bus)，分别读取上次设置 → 应用 → 让滑条联动 ——
+	var mv := _load_volume("music", DEFAULT_MUSIC_VOLUME)
+	_music_slider.value = mv
+	_apply_volume("Music", mv)
+	_music_slider.value_changed.connect(_on_music_changed)
+	var sv := _load_volume("sfx")
+	_sfx_slider.value = sv
+	_apply_volume("SFX", sv)
+	_sfx_slider.value_changed.connect(_on_sfx_changed)
 
-# 拖动音量滑条：实时改主总线(Master)音量并存盘
-func _on_volume_changed(v: float) -> void:
-	_apply_volume(v)
-	_save_volume(v)
+# 拖动滑条：实时改对应总线的音量并存盘
+func _on_music_changed(v: float) -> void:
+	_apply_volume("Music", v)
+	_save_volume("music", v)
 
-func _apply_volume(v: float) -> void:
-	var idx := AudioServer.get_bus_index("Master")
+func _on_sfx_changed(v: float) -> void:
+	_apply_volume("SFX", v)
+	_save_volume("sfx", v)
+
+func _apply_volume(bus: String, v: float) -> void:
+	var idx := AudioServer.get_bus_index(bus)
 	if v <= 0.001:
 		AudioServer.set_bus_mute(idx, true)                   # 拉到 0 = 静音
 	else:
 		AudioServer.set_bus_mute(idx, false)
 		AudioServer.set_bus_volume_db(idx, linear_to_db(v))   # 线性音量(0~1)转成分贝
 
-func _load_volume() -> float:
+func _load_volume(key: String, def := 1.0) -> float:
 	var cfg := ConfigFile.new()
 	if cfg.load(SETTINGS_PATH) == OK:
-		return float(cfg.get_value("audio", "master", 1.0))
-	return 1.0   # 没存过 → 默认最大
+		return float(cfg.get_value("audio", key, def))
+	return def   # 没存过 → 用默认值
 
-func _save_volume(v: float) -> void:
+func _save_volume(key: String, v: float) -> void:
 	var cfg := ConfigFile.new()
 	cfg.load(SETTINGS_PATH)                              # 先读旧的(没有也没关系)
-	cfg.set_value("audio", "master", v)
+	cfg.set_value("audio", key, v)
 	cfg.save(SETTINGS_PATH)
 
 func _on_pass_changed(t: String):

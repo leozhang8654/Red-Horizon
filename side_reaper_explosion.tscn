@@ -58,5 +58,6 @@ animation = &"default"
 script = ExtResource("s_exp")
 
 [node name="Sound" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
 stream = ExtResource("snd")
 autoplay = true

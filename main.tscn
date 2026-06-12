@@ -38,6 +38,7 @@
 [ext_resource type="Texture2D" uid="uid://df56nyxnsf4f2" path="res://dodge_frames/roll_11.png" id="roll11"]
 [ext_resource type="Texture2D" uid="uid://beyg20oehqnv7" path="res://switch_off.png" id="sw_off"]
 [ext_resource type="Texture2D" uid="uid://cncq8jmwh3kbl" path="res://switch_on.png" id="sw_on"]
+[ext_resource type="AudioStream" uid="uid://cvuylodyju8ac" path="res://Skylark - Dancing Colours [ctI87ykv9UI].mp3" id="27_bgm"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_roll"]
 animations = [{
@@ -94,6 +95,13 @@ corner_radius_bottom_left = 170
 
 [node name="Node2D" type="Node2D" unique_id=787609847]
 
+[node name="BGM" type="AudioStreamPlayer" parent="."]
+bus = &"Music"
+process_mode = 3
+stream = ExtResource("27_bgm")
+volume_db = -21.4
+autoplay = true
+
 [node name="Background" type="Parallax2D" parent="." unique_id=538206389]
 z_index = -100
 ignore_camera_scroll = true
@@ -135,16 +143,19 @@ enabled = false
 polygon = PackedVector2Array(-35, -60, 35, -60, 36, 60, -35, 60)
 
 [node name="MainSound" type="AudioStreamPlayer" parent="Player" unique_id=669386601]
+bus = &"SFX"
 stream = ExtResource("13_mainsfx")
 volume_db = -30.0
 max_polyphony = 5
 
 [node name="SideSound" type="AudioStreamPlayer" parent="Player" unique_id=497818764]
+bus = &"SFX"
 stream = ExtResource("14_sidesfx")
 volume_db = -25.0
 max_polyphony = 6
 
 [node name="Whoosh" type="AudioStreamPlayer" parent="Player"]
+bus = &"SFX"
 stream = ExtResource("26_whoosh")
 
 [node name="WaveSpawner" type="Node2D" parent="." unique_id=1965328490]
@@ -257,11 +268,13 @@ horizontal_alignment = 1
 script = ExtResource("23_vic")
 
 [node name="Ding" type="AudioStreamPlayer" parent="Victory"]
+bus = &"SFX"
 stream = ExtResource("24_ding")
 volume_db = -6.0
 max_polyphony = 4
 
 [node name="StampSound" type="AudioStreamPlayer" parent="Victory"]
+bus = &"SFX"
 stream = ExtResource("25_stamp")
 volume_db = -2.0
 
@@ -464,18 +477,37 @@ theme_override_font_sizes/font_size = 36
 text = "空格 继续游戏    ·    R 重新开始"
 horizontal_alignment = 1
 
-[node name="VolumeRow" type="HBoxContainer" parent="PauseMenu/Center/VBox" unique_id=1331864605]
+[node name="MusicRow" type="HBoxContainer" parent="PauseMenu/Center/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="VolLabel" type="Label" parent="PauseMenu/Center/VBox/VolumeRow" unique_id=1656177787]
+[node name="MusicLabel" type="Label" parent="PauseMenu/Center/VBox/MusicRow"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
-text = "音量"
+text = "音乐"
 
-[node name="VolSlider" type="HSlider" parent="PauseMenu/Center/VBox/VolumeRow" unique_id=159211302]
+[node name="MusicSlider" type="HSlider" parent="PauseMenu/Center/VBox/MusicRow"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SfxRow" type="HBoxContainer" parent="PauseMenu/Center/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="SfxLabel" type="Label" parent="PauseMenu/Center/VBox/SfxRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("22_pixfont")
+theme_override_font_sizes/font_size = 32
+text = "音效"
+
+[node name="SfxSlider" type="HSlider" parent="PauseMenu/Center/VBox/SfxRow"]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_vertical = 4

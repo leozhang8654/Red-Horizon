@@ -93,6 +93,7 @@ sprite_frames = SubResource("sf")
 offset = Vector2(0, 57)
 
 [node name="Sound" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
 stream = ExtResource("2")
 max_polyphony = 4
 volume_db = -3.0

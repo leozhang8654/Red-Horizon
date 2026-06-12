@@ -6,10 +6,11 @@
 
 [node name="Enemy" type="Area2D" unique_id=1078567409]
 script = ExtResource("1_enemy")
+shoot_volume_db = -20.0
 
 [node name="ShootSound" type="AudioStreamPlayer" parent="." unique_id=1034331536]
 stream = ExtResource("3_shoot")
-volume_db = -61.959
+volume_db = -30.0
 max_polyphony = 3
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=287639730]
