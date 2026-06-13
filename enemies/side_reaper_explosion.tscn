@@ -1,0 +1,63 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://effects/explosion.gd" id="s_exp"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_1.png" id="b1"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_2.png" id="b2"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_3.png" id="b3"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_4.png" id="b4"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_5.png" id="b5"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_6.png" id="b6"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_7.png" id="b7"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_8.png" id="b8"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_9.png" id="b9"]
+[ext_resource type="Texture2D" path="res://enemies/art/side_reaper_boom/boom_10.png" id="b10"]
+[ext_resource type="AudioStream" path="res://effects/sound/dust skimmer爆炸音效.wav" id="snd"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_reaper"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("b1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b9")
+}, {
+"duration": 1.0,
+"texture": ExtResource("b10")
+}],
+"loop": false,
+"name": &"default",
+"speed": 14.0
+}]
+
+[node name="SideReaperExplosion" type="AnimatedSprite2D"]
+scale = Vector2(1.4, 1.4)
+sprite_frames = SubResource("SpriteFrames_reaper")
+animation = &"default"
+script = ExtResource("s_exp")
+
+[node name="Sound" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
+stream = ExtResource("snd")
+autoplay = true

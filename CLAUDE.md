@@ -21,26 +21,51 @@
 - **脚本/场景改名要在 Godot 的 FileSystem 面板里改**（不要在外部直接改文件名），否则会断掉引用。
 
 ## 项目结构（哪个文件管什么）
-- `main.tscn` — 主场景：背景、玩家、敌机生成器(WaveSpawner)、HUD、游戏结束画面(GameOver)、暂停菜单(PauseMenu)、屏幕震动相机(ShakeCamera)。
-- `player.gd` — 玩家飞机：移动、空气墙、机身侧倾、主炮/副炮自动开火、血量与受伤无敌、闪避翻滚(Roll 动画)。
-- `dust skimmer.gd` / `enemy.tscn` — **第一波**小兵：V 字进场、悬浮、受击闪烁、三炮口开火。
-- `side_reaper.gd` / `side_reaper.tscn` — **第二波**精英敌机；`side_reaper_explosion.tscn` 是它的死亡爆炸。
-- `mech_arm.gd` / `mech_arm.tscn` — **第二波**随场出现的机械臂电锯（场地危险物）。
-- `wave_spawner.gd` — 编队管理：第一波 V 字杂兵 → 清光后第二波(Side Reaper + 机械臂) → 清光后**第三波 Boss**。含 `jump_to_wave(n)` 供作弊跳波(1/2/3)。
-- `boss.gd` / `boss.tscn` — **第三波 Boss**(MANTIS-LUX 母舰)：出场无敌、悬停游移、四炮台瞄准、分阶段击破、三招(环形弹幕/炮台机枪/横扫激光)、实体阻挡。
-- `boss_bullet.gd` — Boss 通用子弹(可朝任意方向飞、可选转向)；`boss_bullet.tscn`=核心环形弹(圆球)、`boss_turret_bullet.tscn`=炮台机枪弹(火焰条)。
-- `barrel_explosion.tscn` — 炮台被打爆的专用爆炸(序列图逐帧，复用 `explosion.gd`)。
-- 抠好的 Boss 贴图都在 `boss_cut/`(主体/左右炮管/小炮塔/核心弹/炮台弹/激光)。
-- `enemy_bullet.gd` / `dust skimmer amo.tscn` — 敌方子弹（向下飞）。
-- `player bullet.gd` / `bullet.tscn` — 玩家主炮子弹。
-- `副炮子弹.tscn` — 玩家副炮子弹。
-- `explosion.gd` / `explosion.tscn` — 通用爆炸动画。
-- `hud.gd` — HUD：**顶部分数** + 左下角爱心血条（玩家扣血/加分时刷新）。
-- `game_over.gd` — 游戏结束画面（显示本局分数，空格重开）。
-- `pause.gd` — 暂停菜单（ESC 开关）；内含**开发者作弊**：密码框输入 `123456` 后出现"波数跳跃"，输入波数即可跳转。
-- `camera_shake.gd` — 屏幕震动（ShakeCamera）。
-- `background.gd` — 滚动背景（Parallax2D）。
-- `scroller.gd` — 向下滚动的物体（AnimatableBody2D），滚出屏幕底部就循环回顶部。
+> **文件按"角色/职责"分到了各文件夹**。每个文件夹里：脚本(`.gd`)和场景(`.tscn`)直接放，图片在 `art/` 子文件夹，音效在 `sound/` 子文件夹。找文件时先想"它属于谁"。
+
+**根目录（项目级文件，不要乱挪）**
+- `main.tscn` — 主场景：背景、玩家、敌机生成器(WaveSpawner)、HUD、游戏结束(GameOver)、暂停菜单(PauseMenu)、屏幕震动相机(ShakeCamera)、背景音乐(BGM)、标题画面(StartScreen)、通关结算(Victory)。
+- `project.godot` 项目配置 · `export_presets.cfg` 导出配置 · `icon.svg` 项目图标 · `publish.sh` 发布脚本 · `游戏封面*` 商店封面图。
+- `default_bus_layout.tres` — 音频总线布局(Master/Music/SFX)。**必须留根目录**：Godot 靠固定默认路径 `res://default_bus_layout.tres` 自动加载它，一挪走自定义总线就失效。
+
+**`player/` 玩家**
+- `player.gd` — 玩家飞机：移动、空气墙、侧倾、主炮/副炮自动开火、血量与受伤无敌、闪避翻滚(Roll)、**开挂模式**(免伤+攻击力×3)。
+- `player bullet.gd` / `bullet.tscn` 主炮子弹 · `副炮子弹.tscn` 副炮子弹。
+- `art/` ship.png、子弹图、`dodge_frames/`(翻滚帧) · `sound/` 主炮/副炮音效。
+
+**`boss/` 第三波 Boss(MANTIS-LUX 母舰)**
+- `boss.gd` / `boss.tscn` — 出场无敌、悬停游移、四炮台瞄准、分阶段击破、三招(环形弹幕/炮台机枪/横扫激光)、实体阻挡。
+- `boss_bullet.gd` — 通用子弹；`boss_bullet.tscn`=核心环形弹、`boss_turret_bullet.tscn`=炮台机枪弹。
+- `barrel_explosion.tscn` 炮台爆炸(复用 `effects/explosion.gd`) · `boss_death_anim.gd`/`.tscn` Boss 死亡演出(5秒爆炸解体)。
+- `art/` `boss_cut/`(主体/炮管/炮塔/弹/激光抠图)、`boss_death_frames/`(死亡动画帧)、炮台爆炸序列图 · `sound/` 激光/机关枪/圆环音效 · `raw/` `boss爆炸动画.mp4`(死亡动画源视频)。
+
+**`enemies/` 杂兵**
+- `dust skimmer.gd` / `enemy.tscn` — **第一波**小兵：V 字进场、悬浮、三炮口开火。
+- `side_reaper.gd` / `side_reaper.tscn` — **第二波**精英；`side_reaper_explosion.tscn` 死亡爆炸。
+- `mech_arm.gd` / `mech_arm.tscn` — **第二波**机械臂电锯(场地危险物)。
+- `enemy_bullet.gd` / `dust skimmer amo.tscn` 敌方子弹(向下飞)。
+- `art/` 各敌机贴图、`side_reaper/`、`side_reaper_boom/`(序列帧) · `sound/` 敌人攻击音效。
+
+**`effects/` 通用特效**
+- `explosion.gd` / `explosion.tscn` — 通用爆炸动画。`art/explosion_frames/` 帧图 · `sound/` 通用爆炸音效(`dust skimmer爆炸音效.wav`，名字带 dust 但其实是通用爆炸声)。
+
+**`ui/` 界面**
+- `hud.gd` — **顶部分数** + 左下角爱心血条；开挂时血条显示成 ♾️。
+- `pause.gd` — 暂停菜单(ESC)：音量滑条；**开发者作弊**(密码 `123456` → 波数跳跃 + 开挂模式开关)。
+- `game_over.gd` 游戏结束 · `start_screen.gd` 标题画面 · `victory.gd` 通关结算。
+- `art/` 爱心、♾️、开关图、标题图 · `fonts/` 像素字体 + 分数字体(`.fnt` 用相对路径引图，三个字体文件必须同目录) · `sound/` 结算音效。
+
+**`world/` 场景环境**
+- `background.gd` 滚动背景(Parallax2D) · `scroller.gd` 向下滚动物(滚出底部循环回顶) · `art/` bg_top/bottom。
+
+**`systems/` 系统**
+- `wave_spawner.gd` — 编队管理：第一波杂兵 → 第二波(Reaper+机械臂) → **第三波 Boss**。含 `jump_to_wave(n)` 作弊跳波。
+- `camera_shake.gd` — 屏幕震动(ShakeCamera)。
+
+**`audio/` 全局音乐**
+- `Skylark - Dancing Colours [ctI87ykv9UI].mp3` — 背景音乐(main.tscn 的 BGM 节点)。
+
+> ⚠️ **要移动/重命名文件，务必连同它的 `.import`(图片/音频)或 `.uid`(脚本)小尾巴一起动**，并更新所有引用它的 `res://` 路径；最好直接在 Godot 的 FileSystem 面板里拖动(它会自动改引用)。
 
 ## 分组(group)约定（用于查找/碰撞判定）
 - 玩家子弹 → `"bullet"`
@@ -55,6 +80,13 @@
 - 游戏中按 **ESC** 暂停 → 密码框输入 `123456` → 出现"波数跳跃" → 输入 **1**(杂兵编队) / **2**(Side Reaper) / **3**(Boss) 跳到该波。
 - 暂停菜单里还有**音乐/音效**两条音量滑条（分别控制 Music / SFX 总线，存到 `user://settings.cfg`；总线布局在 `default_bus_layout.tres`，背景音乐节点是 main.tscn 里的 BGM）。暂停时按**空格**继续游戏、按 **R** 重开。
 
+## 音频（音乐/音效怎么管）
+- 声音走两条总线(bus)：背景音乐 → **Music**，所有音效 → **SFX**（布局在 `default_bus_layout.tres`）。**新加任何 AudioStreamPlayer 都要在 Inspector 里把 Bus 设成 SFX**（音乐才用 Music），否则两条滑条管不到它。
+- 背景音乐 = main.tscn 里的 **BGM** 节点（Skylark - Dancing Colours）：自动播放、循环（loop 开在 `.mp3.import` 里）、暂停时继续放（process_mode=Always）。
+- **音乐响度天花板烤在 BGM 节点的 Volume dB**（现为 `-21.4`）：滑条满格=这个响度。想整体调高/调低音乐上限就调它，别动滑条逻辑。
+- 滑条默认值：`pause.gd` 里的 `DEFAULT_MUSIC_VOLUME`（音乐，现为 1.0）；音效默认 1.0。
+- 玩家的实际设置存在 `user://settings.cfg`（macOS 实际路径 `~/Library/Application Support/Godot/app_userdata/一号游戏/settings.cfg`），键：`audio/music`、`audio/sfx`。**存档优先于默认值**。
+
 ## 项目参数
 - 视口分辨率：1152 × 648（见 `project.godot`）。
 
@@ -64,6 +96,8 @@
 - **在物理回调里删除带碰撞的节点会报错**：改用 `call_deferred` 延后执行（例如死亡重载场景）。
 - **节点 `_ready` 顺序**：树里靠后的节点(如 HUD)比靠前的(如 Player)更晚 `_ready`，所以 Player 在自己的 `_ready` 里找不到 HUD —— 要"用到时再找"（延迟查找）。
 - **场景里存的值会"霸占"脚本里的 `@export` 默认值**：在脚本里改了默认值却不生效，多半是该节点的 Inspector 里手动填过值（被写进了 `.tscn`）。解决：在 Inspector 里点该属性旁的**回退箭头 ↩**恢复成"听脚本的"，或删掉 `.tscn` 里那一行。
+- **脚本会在 `_ready` 里覆盖子节点的 Inspector 值**：例如 side_reaper.gd 会把根节点导出的 `attack_volume_db` 写进 AttackSound——这时在 AttackSound 的 Inspector 里调音量没用，要调**根节点**上的导出变量。
+- **玩家存档会"压住"代码里的默认值**：音量等设置存在 `user://settings.cfg`，改了脚本里的默认值却没效果，多半是存档里还躺着旧值——把存档里那一项改掉或删掉才能看到新默认值。
 - **Godot 开着的场景/脚本标签页会被存回硬盘**：想从外部 `mv`/删一个 `.tscn`，要**先在 Godot 里关掉它的标签页**（或退出 Godot），否则它会"复活"。同理，被移走文件的脚本标签会报 `File not found` —— 关掉那个标签即可，不影响游戏运行。
 
 ## 历史备注

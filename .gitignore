@@ -5,6 +5,7 @@
 # 导出打包文件
 export.cfg
 export_presets.cfg
+build/
 
 # macOS 系统垃圾文件
 .DS_Store

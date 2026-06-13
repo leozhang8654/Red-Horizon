@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://cywti5ch3ta2k"
+path="res://.godot/imported/dust skimmer 子弹音效.wav-e3050723fa165dc969f92359653555a9.sample"
+
+[deps]
+
+source_file="res://enemies/sound/dust skimmer 子弹音效.wav"
+dest_files=["res://.godot/imported/dust skimmer 子弹音效.wav-e3050723fa165dc969f92359653555a9.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2

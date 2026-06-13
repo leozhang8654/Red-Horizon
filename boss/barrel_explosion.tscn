@@ -1,0 +1,108 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Script" path="res://effects/explosion.gd" id="s_exp"]
+[ext_resource type="Texture2D" path="res://boss/art/barrel爆炸序列图.png" id="sheet"]
+[ext_resource type="AudioStream" path="res://effects/sound/dust skimmer爆炸音效.wav" id="snd"]
+
+[sub_resource type="AtlasTexture" id="f0"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 0, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f1"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 0, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f2"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 256, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f3"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 256, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f4"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 512, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f5"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 512, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f6"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 768, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f7"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 768, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f8"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 1024, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f9"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 1024, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f10"]
+atlas = ExtResource("sheet")
+region = Rect2(0, 1280, 512, 256)
+
+[sub_resource type="AtlasTexture" id="f11"]
+atlas = ExtResource("sheet")
+region = Rect2(512, 1280, 512, 256)
+
+[sub_resource type="SpriteFrames" id="frames"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("f0")
+}, {
+"duration": 1.0,
+"texture": SubResource("f1")
+}, {
+"duration": 1.0,
+"texture": SubResource("f2")
+}, {
+"duration": 1.0,
+"texture": SubResource("f3")
+}, {
+"duration": 1.0,
+"texture": SubResource("f4")
+}, {
+"duration": 1.0,
+"texture": SubResource("f5")
+}, {
+"duration": 1.0,
+"texture": SubResource("f6")
+}, {
+"duration": 1.0,
+"texture": SubResource("f7")
+}, {
+"duration": 1.0,
+"texture": SubResource("f8")
+}, {
+"duration": 1.0,
+"texture": SubResource("f9")
+}, {
+"duration": 1.0,
+"texture": SubResource("f10")
+}, {
+"duration": 1.0,
+"texture": SubResource("f11")
+}],
+"loop": false,
+"name": &"default",
+"speed": 18.0
+}]
+
+[node name="BarrelExplosion" type="AnimatedSprite2D"]
+scale = Vector2(0.9, 0.9)
+sprite_frames = SubResource("frames")
+animation = &"default"
+script = ExtResource("s_exp")
+
+[node name="Sound" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
+stream = ExtResource("snd")
+autoplay = true
