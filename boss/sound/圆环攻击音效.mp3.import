@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://dgr73wq3stoss"
-path="res://.godot/imported/圆环攻击音效.mp3-e697a908126703ff131ee87ace897f19.mp3str"
+path="res://.godot/imported/圆环攻击音效.mp3-b32762c94764444c1b30227212da2244.mp3str"
 
 [deps]
 
 source_file="res://boss/sound/圆环攻击音效.mp3"
-dest_files=["res://.godot/imported/圆环攻击音效.mp3-e697a908126703ff131ee87ace897f19.mp3str"]
+dest_files=["res://.godot/imported/圆环攻击音效.mp3-b32762c94764444c1b30227212da2244.mp3str"]
 
 [params]
 

@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duab62qhdsj6h"
-path="res://.godot/imported/标题_透明.png-71e8d7d89f43158fa58d3bde6f4f5c0c.ctex"
+path="res://.godot/imported/标题_透明.png-e555d054c6aa3f61d56c1e49074b81a5.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://ui/art/标题_透明.png"
-dest_files=["res://.godot/imported/标题_透明.png-71e8d7d89f43158fa58d3bde6f4f5c0c.ctex"]
+dest_files=["res://.godot/imported/标题_透明.png-e555d054c6aa3f61d56c1e49074b81a5.ctex"]
 
 [params]
 

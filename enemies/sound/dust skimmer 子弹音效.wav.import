@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cywti5ch3ta2k"
-path="res://.godot/imported/dust skimmer 子弹音效.wav-e3050723fa165dc969f92359653555a9.sample"
+path="res://.godot/imported/dust skimmer 子弹音效.wav-48fa902ff27196ea921d45958587e06c.sample"
 
 [deps]
 
 source_file="res://enemies/sound/dust skimmer 子弹音效.wav"
-dest_files=["res://.godot/imported/dust skimmer 子弹音效.wav-e3050723fa165dc969f92359653555a9.sample"]
+dest_files=["res://.godot/imported/dust skimmer 子弹音效.wav-48fa902ff27196ea921d45958587e06c.sample"]
 
 [params]
 

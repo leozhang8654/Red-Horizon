@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dt76bdtpuic5n"
-path="res://.godot/imported/frame_066.png-a633ec9795a88b7d5d59518366df46dd.ctex"
+path="res://.godot/imported/frame_066.png-8b06ea6b194cb5398ebd59c85d62e448.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://boss/art/boss_death_frames/frame_066.png"
-dest_files=["res://.godot/imported/frame_066.png-a633ec9795a88b7d5d59518366df46dd.ctex"]
+dest_files=["res://.godot/imported/frame_066.png-8b06ea6b194cb5398ebd59c85d62e448.ctex"]
 
 [params]
 

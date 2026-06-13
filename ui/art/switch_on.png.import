@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cncq8jmwh3kbl"
-path="res://.godot/imported/switch_on.png-91b890b322cfa5d90c756f1bdae3cd3d.ctex"
+path="res://.godot/imported/switch_on.png-45dd1c7cb7f43d3932c1194d2b29dc71.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://ui/art/switch_on.png"
-dest_files=["res://.godot/imported/switch_on.png-91b890b322cfa5d90c756f1bdae3cd3d.ctex"]
+dest_files=["res://.godot/imported/switch_on.png-45dd1c7cb7f43d3932c1194d2b29dc71.ctex"]
 
 [params]
 

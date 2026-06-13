@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://cgdobwi1rieaj"
-path="res://.godot/imported/dragon-studio-bell-ring-390294.mp3-6ce229fd8f6b925bf807864cf7292ea6.mp3str"
+path="res://.godot/imported/dragon-studio-bell-ring-390294.mp3-413e02c2a13e5dd1cfbb22bfabe1b833.mp3str"
 
 [deps]
 
 source_file="res://ui/sound/dragon-studio-bell-ring-390294.mp3"
-dest_files=["res://.godot/imported/dragon-studio-bell-ring-390294.mp3-6ce229fd8f6b925bf807864cf7292ea6.mp3str"]
+dest_files=["res://.godot/imported/dragon-studio-bell-ring-390294.mp3-413e02c2a13e5dd1cfbb22bfabe1b833.mp3str"]
 
 [params]
 

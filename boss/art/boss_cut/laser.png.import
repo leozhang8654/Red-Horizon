@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c7soj73nm3j3n"
-path="res://.godot/imported/laser.png-6a06f769e03d77c94b586aaf633f6719.ctex"
+path="res://.godot/imported/laser.png-2e9c98e5d148a4c8b01f03e293a2b6c8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://boss/art/boss_cut/laser.png"
-dest_files=["res://.godot/imported/laser.png-6a06f769e03d77c94b586aaf633f6719.ctex"]
+dest_files=["res://.godot/imported/laser.png-2e9c98e5d148a4c8b01f03e293a2b6c8.ctex"]
 
 [params]
 

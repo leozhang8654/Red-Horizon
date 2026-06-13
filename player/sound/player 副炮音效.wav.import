@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://ch35wo630314i"
-path="res://.godot/imported/player 副炮音效.wav-babe239490067d87e57ddc4282b80a21.sample"
+path="res://.godot/imported/player 副炮音效.wav-e2f988aec4dd1d4db678b271e157f8cd.sample"
 
 [deps]
 
 source_file="res://player/sound/player 副炮音效.wav"
-dest_files=["res://.godot/imported/player 副炮音效.wav-babe239490067d87e57ddc4282b80a21.sample"]
+dest_files=["res://.godot/imported/player 副炮音效.wav-e2f988aec4dd1d4db678b271e157f8cd.sample"]
 
 [params]
 

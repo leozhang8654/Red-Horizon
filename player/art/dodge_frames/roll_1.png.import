@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhgm8d0eyfwfx"
-path="res://.godot/imported/roll_1.png-81377ae042e5b7b337e9816bc157c57a.ctex"
+path="res://.godot/imported/roll_1.png-9285b76b9837173729048f730e6abe4c.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://player/art/dodge_frames/roll_1.png"
-dest_files=["res://.godot/imported/roll_1.png-81377ae042e5b7b337e9816bc157c57a.ctex"]
+dest_files=["res://.godot/imported/roll_1.png-9285b76b9837173729048f730e6abe4c.ctex"]
 
 [params]
 

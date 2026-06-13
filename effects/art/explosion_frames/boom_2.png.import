@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cdnjj5pj3xwy"
-path="res://.godot/imported/boom_2.png-ec4b4a0f43015c68c1c33df9824a520f.ctex"
+path="res://.godot/imported/boom_2.png-20608341f05b2de6f029bcf82a7975d8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://effects/art/explosion_frames/boom_2.png"
-dest_files=["res://.godot/imported/boom_2.png-ec4b4a0f43015c68c1c33df9824a520f.ctex"]
+dest_files=["res://.godot/imported/boom_2.png-20608341f05b2de6f029bcf82a7975d8.ctex"]
 
 [params]
 

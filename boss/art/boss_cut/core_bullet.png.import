@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cldgy87i5mus6"
-path="res://.godot/imported/core_bullet.png-fd634ac42ddd533c3970f988687b14bf.ctex"
+path="res://.godot/imported/core_bullet.png-2dde69587b65d3a57bb55bb23dd684e1.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://boss/art/boss_cut/core_bullet.png"
-dest_files=["res://.godot/imported/core_bullet.png-fd634ac42ddd533c3970f988687b14bf.ctex"]
+dest_files=["res://.godot/imported/core_bullet.png-2dde69587b65d3a57bb55bb23dd684e1.ctex"]
 
 [params]
 

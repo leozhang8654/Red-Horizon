@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://qk6febgi7wdt"
-path="res://.godot/imported/副炮子弹.png-82902e38f8e308b3ac563568bcfc304c.ctex"
+path="res://.godot/imported/副炮子弹.png-e23b36d0c2848f4df8d906ae39490895.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://player/art/副炮子弹.png"
-dest_files=["res://.godot/imported/副炮子弹.png-82902e38f8e308b3ac563568bcfc304c.ctex"]
+dest_files=["res://.godot/imported/副炮子弹.png-e23b36d0c2848f4df8d906ae39490895.ctex"]
 
 [params]
 

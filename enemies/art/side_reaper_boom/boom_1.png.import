@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://djujmdwumh2ns"
-path="res://.godot/imported/boom_1.png-2c2e8efc3d02caeee1ab9af6d89d6c70.ctex"
+path="res://.godot/imported/boom_1.png-8d79495179bac4dee0f772b6f0f1092a.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://enemies/art/side_reaper_boom/boom_1.png"
-dest_files=["res://.godot/imported/boom_1.png-2c2e8efc3d02caeee1ab9af6d89d6c70.ctex"]
+dest_files=["res://.godot/imported/boom_1.png-8d79495179bac4dee0f772b6f0f1092a.ctex"]
 
 [params]
 

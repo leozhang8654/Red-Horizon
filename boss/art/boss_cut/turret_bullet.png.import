@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cn422bblt5oow"
-path="res://.godot/imported/turret_bullet.png-f98caefe8291b8ceb164a85f9c41e3b0.ctex"
+path="res://.godot/imported/turret_bullet.png-db1f5bc9af9eb752a78584d8ca9ffef8.ctex"
 metadata={
 "vram_texture": false
 }
@@ -11,7 +11,7 @@ metadata={
 [deps]
 
 source_file="res://boss/art/boss_cut/turret_bullet.png"
-dest_files=["res://.godot/imported/turret_bullet.png-f98caefe8291b8ceb164a85f9c41e3b0.ctex"]
+dest_files=["res://.godot/imported/turret_bullet.png-db1f5bc9af9eb752a78584d8ca9ffef8.ctex"]
 
 [params]
 

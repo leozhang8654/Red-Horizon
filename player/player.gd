@@ -38,6 +38,15 @@ var _god_mode := false   # 开发者作弊：开挂模式（暂停菜单作弊�
 @export var dodge_invincible := 0.55   # 闪避无敌持续秒数
 @export var dodge_cooldown := 2.0      # 闪避冷却秒数（两次闪避的最短间隔）
 
+# —— 闪避冷却条（横条，画在机身正下方居中，让玩家看见还要等多久才能再闪避）——
+@export var dodge_bar_offset_y := 205.0   # 条离机身中心往下多少像素（调大=更往下）
+@export var dodge_bar_width := 120.0      # 横条的长度（像素）
+@export var dodge_bar_height := 14.0      # 横条的粗细（像素）
+@export var dodge_bar_bg_color := Color(0, 0, 0, 0.45)     # 底槽颜色（半透明黑）
+@export var dodge_bar_fill_color := Color(1, 1, 1, 0.95)   # 填充色（白）
+@export var dodge_bar_fade_speed := 6.0   # 渐显/渐隐速度（越大=出现和消失越快）
+var _dodge_bar_alpha := 0.0   # 冷却条当前的整体透明度（0=完全藏起，1=完全显示）
+
 # 开局时飞机在屏幕里的"高度位置"：0=贴屏幕顶、0.5=正中、1=贴屏幕底。调大=飞机更靠下
 @export var start_height_ratio := 0.78
 var _dodge_cd := 0.0                   # 当前剩余冷却
@@ -136,6 +145,10 @@ func _physics_process(delta):
 	_dodge_cd -= delta
 	if Input.is_action_just_pressed("ui_accept") and _dodge_cd <= 0.0 and not _dodging:
 		_start_dodge()
+	# 冷却条只在"还在冷却"时显示：在冷却→渐显到1，冷却好了→渐隐回0
+	var bar_target := 1.0 if _dodge_cd > 0.0 else 0.0
+	_dodge_bar_alpha = move_toward(_dodge_bar_alpha, bar_target, dodge_bar_fade_speed * delta)
+	queue_redraw()   # 冷却条每帧重画，才能看到它平滑地涨起来/淡出
 
 	# —— 机身侧倾：向右移右倾、向左移左倾、松手平滑回正（翻滚时不做侧倾）——
 	if not _dodging:
@@ -180,6 +193,24 @@ func _end_dodge():
 	_roll.visible = false
 	_sprite.visible = true
 	_sprite.modulate.a = 1.0
+
+# 在机身正下方画一条横向"闪避冷却条"：
+# 剩余冷却越少 → 填充越长（向右涨）；填满 = 现在就能再闪避。
+# 画在玩家根节点上，根节点不旋转（侧倾只动贴图），所以条始终保持水平、并自动跟着飞机走。
+func _draw():
+	if _dodge_bar_alpha <= 0.0:
+		return   # 平时（没在冷却）完全藏起来，一点都不画
+	var ratio := clampf(1.0 - _dodge_cd / dodge_cooldown, 0.0, 1.0)
+	var x := -dodge_bar_width / 2.0   # 水平居中（条以机身中线为中心）
+	var y := dodge_bar_offset_y       # 机身下方
+	# 底槽和填充都乘上当前透明度，实现整体渐显/渐隐
+	var bg := dodge_bar_bg_color
+	bg.a *= _dodge_bar_alpha
+	draw_rect(Rect2(x, y, dodge_bar_width, dodge_bar_height), bg)
+	if ratio > 0.0:
+		var col := dodge_bar_fill_color
+		col.a *= _dodge_bar_alpha
+		draw_rect(Rect2(x, y, dodge_bar_width * ratio, dodge_bar_height), col)
 
 func _shoot_main():
 	_main_sound.play()   # 播放主炮音效（max_polyphony 允许多发叠响，不会被掐断）

@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://duxswo4ix75r2"
-path="res://.godot/imported/机关枪音效.mp3-1746840a0db693f2db1f1d0c75854696.mp3str"
+path="res://.godot/imported/机关枪音效.mp3-71749b176bec141d71a9175d43524660.mp3str"
 
 [deps]
 
 source_file="res://boss/sound/机关枪音效.mp3"
-dest_files=["res://.godot/imported/机关枪音效.mp3-1746840a0db693f2db1f1d0c75854696.mp3str"]
+dest_files=["res://.godot/imported/机关枪音效.mp3-71749b176bec141d71a9175d43524660.mp3str"]
 
 [params]
 

@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://bi1ip723aotc2"
-path="res://.godot/imported/dust skimmer爆炸音效.wav-0bfdf952e1445d1c0242360eb1bcf881.sample"
+path="res://.godot/imported/dust skimmer爆炸音效.wav-664cab9d62778fac928d080949d10eac.sample"
 
 [deps]
 
 source_file="res://effects/sound/dust skimmer爆炸音效.wav"
-dest_files=["res://.godot/imported/dust skimmer爆炸音效.wav-0bfdf952e1445d1c0242360eb1bcf881.sample"]
+dest_files=["res://.godot/imported/dust skimmer爆炸音效.wav-664cab9d62778fac928d080949d10eac.sample"]
 
 [params]
 
