@@ -38,8 +38,9 @@ var _god_mode := false   # 开发者作弊：开挂模式（暂停菜单作弊�
 @export var dodge_invincible := 0.55   # 闪避无敌持续秒数
 @export var dodge_cooldown := 2.0      # 闪避冷却秒数（两次闪避的最短间隔）
 
-# —— 闪避冷却条（横条，画在机身正下方居中，让玩家看见还要等多久才能再闪避）——
-@export var dodge_bar_offset_y := 205.0   # 条离机身中心往下多少像素（调大=更往下）
+# —— 闪避冷却条（横条；位置由飞机下的 DodgeBarAnchor 锚点决定，可在编辑器里拖）——
+# 想挪位置：在 Godot 里选中 Player ▸ DodgeBarAnchor，直接拖它，条就居中跟到哪
+@onready var _dodge_anchor: Marker2D = $DodgeBarAnchor   # 条的中心锚点
 @export var dodge_bar_width := 120.0      # 横条的长度（像素）
 @export var dodge_bar_height := 14.0      # 横条的粗细（像素）
 @export var dodge_bar_bg_color := Color(0, 0, 0, 0.45)     # 底槽颜色（半透明黑）
@@ -194,15 +195,17 @@ func _end_dodge():
 	_sprite.visible = true
 	_sprite.modulate.a = 1.0
 
-# 在机身正下方画一条横向"闪避冷却条"：
+# 画一条横向"闪避冷却条"，中心对齐 DodgeBarAnchor 锚点（可在编辑器拖动）：
 # 剩余冷却越少 → 填充越长（向右涨）；填满 = 现在就能再闪避。
 # 画在玩家根节点上，根节点不旋转（侧倾只动贴图），所以条始终保持水平、并自动跟着飞机走。
 func _draw():
 	if _dodge_bar_alpha <= 0.0:
 		return   # 平时（没在冷却）完全藏起来，一点都不画
 	var ratio := clampf(1.0 - _dodge_cd / dodge_cooldown, 0.0, 1.0)
-	var x := -dodge_bar_width / 2.0   # 水平居中（条以机身中线为中心）
-	var y := dodge_bar_offset_y       # 机身下方
+	# 以锚点为中心：左端 = 锚点x - 半个宽，顶边 = 锚点y - 半个高
+	var center := _dodge_anchor.position
+	var x := center.x - dodge_bar_width / 2.0
+	var y := center.y - dodge_bar_height / 2.0
 	# 底槽和填充都乘上当前透明度，实现整体渐显/渐隐
 	var bg := dodge_bar_bg_color
 	bg.a *= _dodge_bar_alpha

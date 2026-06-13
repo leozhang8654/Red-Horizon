@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://bixtlsp4dls3q"]
 
-[ext_resource type="Script" uid="uid://cuuq28bi64kv1" path="res://player/player.gd" id="1_0xm2m"]
-[ext_resource type="Texture2D" uid="uid://bcg3ca4ovxaqs" path="res://player/art/ship.png" id="2_ship"]
+[ext_resource type="PackedScene" path="res://player/player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://c7vxveq2ko702" path="res://world/background.gd" id="3_bg"]
 [ext_resource type="Texture2D" uid="uid://bqfm7e1s0taq0" path="res://world/art/bg_bottom.png" id="4_bgtop"]
 [ext_resource type="Texture2D" uid="uid://835gn8oogief" path="res://world/art/bg_top.png" id="6_bgbot"]
@@ -11,8 +10,6 @@
 [ext_resource type="Script" uid="uid://dylcvr7bxmhqs" path="res://ui/hud.gd" id="10_hud"]
 [ext_resource type="Script" uid="uid://bwbvm3cejhk3" path="res://ui/game_over.gd" id="11_go"]
 [ext_resource type="Script" uid="uid://xxa80trugu1c" path="res://systems/camera_shake.gd" id="12_cam"]
-[ext_resource type="AudioStream" uid="uid://b2nijfrnstgup" path="res://player/sound/player 主炮音效2.wav" id="13_mainsfx"]
-[ext_resource type="AudioStream" uid="uid://ch35wo630314i" path="res://player/sound/player 副炮音效.wav" id="14_sidesfx"]
 [ext_resource type="Script" uid="uid://cplwmmavcglm6" path="res://ui/pause.gd" id="15_pause"]
 [ext_resource type="PackedScene" path="res://enemies/side_reaper.tscn" id="16_reaper"]
 [ext_resource type="PackedScene" uid="uid://blb0300o5yikw" path="res://enemies/mech_arm.tscn" id="17_arm"]
@@ -24,62 +21,9 @@
 [ext_resource type="Script" uid="uid://cb31vpm8lrejk" path="res://ui/victory.gd" id="23_vic"]
 [ext_resource type="AudioStream" path="res://ui/sound/dragon-studio-bell-ring-390294.mp3" id="24_ding"]
 [ext_resource type="AudioStream" path="res://ui/sound/freesound_community-traditional-stamp-44189.mp3" id="25_stamp"]
-[ext_resource type="AudioStream" path="res://ui/sound/dragon-studio-whoosh-cinematic-376875.mp3" id="26_whoosh"]
-[ext_resource type="Texture2D" uid="uid://dhgm8d0eyfwfx" path="res://player/art/dodge_frames/roll_1.png" id="roll1"]
-[ext_resource type="Texture2D" uid="uid://ksc1mjknv5kq" path="res://player/art/dodge_frames/roll_2.png" id="roll2"]
-[ext_resource type="Texture2D" uid="uid://bvc4k2usg462p" path="res://player/art/dodge_frames/roll_3.png" id="roll3"]
-[ext_resource type="Texture2D" uid="uid://dvteok4m6v11m" path="res://player/art/dodge_frames/roll_4.png" id="roll4"]
-[ext_resource type="Texture2D" uid="uid://lu62pgxx710i" path="res://player/art/dodge_frames/roll_5.png" id="roll5"]
-[ext_resource type="Texture2D" uid="uid://b7gjv1ys5c5i7" path="res://player/art/dodge_frames/roll_6.png" id="roll6"]
-[ext_resource type="Texture2D" uid="uid://pwnmurwtusb0" path="res://player/art/dodge_frames/roll_7.png" id="roll7"]
-[ext_resource type="Texture2D" uid="uid://oidjb8xl5ix0" path="res://player/art/dodge_frames/roll_8.png" id="roll8"]
-[ext_resource type="Texture2D" uid="uid://yjm4hbb18m1w" path="res://player/art/dodge_frames/roll_9.png" id="roll9"]
-[ext_resource type="Texture2D" uid="uid://bomf50ph3ueht" path="res://player/art/dodge_frames/roll_10.png" id="roll10"]
-[ext_resource type="Texture2D" uid="uid://df56nyxnsf4f2" path="res://player/art/dodge_frames/roll_11.png" id="roll11"]
 [ext_resource type="Texture2D" uid="uid://beyg20oehqnv7" path="res://ui/art/switch_off.png" id="sw_off"]
 [ext_resource type="Texture2D" uid="uid://cncq8jmwh3kbl" path="res://ui/art/switch_on.png" id="sw_on"]
 [ext_resource type="AudioStream" uid="uid://cvuylodyju8ac" path="res://audio/Skylark - Dancing Colours [ctI87ykv9UI].mp3" id="27_bgm"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_roll"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("roll1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll3")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll4")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll5")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll6")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll7")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll8")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll9")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll10")
-}, {
-"duration": 1.0,
-"texture": ExtResource("roll11")
-}],
-"loop": false,
-"name": &"roll",
-"speed": 20.0
-}]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rank"]
 bg_color = Color(0, 0, 0, 0)
@@ -115,48 +59,8 @@ centered = false
 texture = ExtResource("6_bgbot")
 centered = false
 
-[node name="Player" type="CharacterBody2D" parent="." unique_id=1630520373]
+[node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector2(576, 324)
-script = ExtResource("1_0xm2m")
-finale_burst_accel = 25000.0
-finale_burst_shake = 700.0
-
-[node name="Sprite2D" type="Sprite2D" parent="Player" unique_id=727904152]
-scale = Vector2(0.3032, 0.3032)
-texture = ExtResource("2_ship")
-
-[node name="Roll" type="AnimatedSprite2D" parent="Player" unique_id=45937009]
-visible = false
-scale = Vector2(1.45, 1.45)
-sprite_frames = SubResource("SpriteFrames_roll")
-animation = &"roll"
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Player" unique_id=1650979021]
-polygon = PackedVector2Array(1.8, -174.9, 16.7, -151.6, 22.4, -128.2, 59.1, -104.9, 62.8, -81.6, 68.5, -58.2, 76.1, -34.9, 107, -11.5, 115.5, 12.1, 121.3, 35.5, 150.1, 58.8, 157.6, 82.2, 162.8, 105.5, 36.1, 128.8, 24.3, 152.2, 0.6, 175.8, -0.9, 175.8, -25.8, 152.2, -36.4, 128.8, -163.1, 105.5, -158, 82.2, -150.4, 58.8, -121.6, 35.5, -115.8, 12.1, -107, -11.5, -76.4, -34.9, -68.8, -58.2, -63.1, -81.6, -59.4, -104.9, -23, -128.2, -17, -151.6, -2.1, -174.9)
-
-[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1997848918]
-enabled = false
-
-[node name="Hurtbox" type="Area2D" parent="Player" unique_id=1175568535]
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Player/Hurtbox" unique_id=978083827]
-polygon = PackedVector2Array(-35, -60, 35, -60, 36, 60, -35, 60)
-
-[node name="MainSound" type="AudioStreamPlayer" parent="Player" unique_id=669386601]
-bus = &"SFX"
-stream = ExtResource("13_mainsfx")
-volume_db = -30.0
-max_polyphony = 5
-
-[node name="SideSound" type="AudioStreamPlayer" parent="Player" unique_id=497818764]
-bus = &"SFX"
-stream = ExtResource("14_sidesfx")
-volume_db = -25.0
-max_polyphony = 6
-
-[node name="Whoosh" type="AudioStreamPlayer" parent="Player"]
-bus = &"SFX"
-stream = ExtResource("26_whoosh")
 
 [node name="WaveSpawner" type="Node2D" parent="." unique_id=1965328490]
 script = ExtResource("8_wave")
