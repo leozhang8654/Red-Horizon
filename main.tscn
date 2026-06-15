@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://835gn8oogief" path="res://world/art/bg_top.png" id="6_bgbot"]
 [ext_resource type="PackedScene" uid="uid://xo1klreqsu2e" path="res://enemies/enemy.tscn" id="7_enemy"]
 [ext_resource type="Script" uid="uid://drd2fadv0us1e" path="res://systems/wave_spawner.gd" id="8_wave"]
-[ext_resource type="Texture2D" uid="uid://boh20ifwi8phb" path="res://ui/art/health icon.png" id="9_heart"]
+[ext_resource type="Script" path="res://ui/shield_pip.gd" id="9_shield"]
 [ext_resource type="Script" uid="uid://dylcvr7bxmhqs" path="res://ui/hud.gd" id="10_hud"]
 [ext_resource type="Script" uid="uid://bwbvm3cejhk3" path="res://ui/game_over.gd" id="11_go"]
 [ext_resource type="Script" uid="uid://xxa80trugu1c" path="res://systems/camera_shake.gd" id="12_cam"]
@@ -107,26 +107,20 @@ offset_bottom = -24.0
 grow_vertical = 0
 theme_override_constants/separation = 14
 
-[node name="H1" type="TextureRect" parent="HUD/Hearts" unique_id=968623384]
+[node name="H1" type="Control" parent="HUD/Hearts" unique_id=968623384]
 custom_minimum_size = Vector2(192, 192)
 layout_mode = 2
-texture = ExtResource("9_heart")
-expand_mode = 1
-stretch_mode = 5
+script = ExtResource("9_shield")
 
-[node name="H2" type="TextureRect" parent="HUD/Hearts" unique_id=1939310918]
+[node name="H2" type="Control" parent="HUD/Hearts" unique_id=1939310918]
 custom_minimum_size = Vector2(192, 192)
 layout_mode = 2
-texture = ExtResource("9_heart")
-expand_mode = 1
-stretch_mode = 5
+script = ExtResource("9_shield")
 
-[node name="H3" type="TextureRect" parent="HUD/Hearts" unique_id=1553398859]
+[node name="H3" type="Control" parent="HUD/Hearts" unique_id=1553398859]
 custom_minimum_size = Vector2(192, 192)
 layout_mode = 2
-texture = ExtResource("9_heart")
-expand_mode = 1
-stretch_mode = 5
+script = ExtResource("9_shield")
 
 [node name="GameOver" type="CanvasLayer" parent="." unique_id=2041206822]
 script = ExtResource("11_go")

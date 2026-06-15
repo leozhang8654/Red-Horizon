@@ -2,7 +2,7 @@ extends CanvasLayer
 
 # 屏幕左下角的爱心血条。玩家扣血时调用 set_hearts() 更新显示。
 
-const HEART_TEX := preload("res://ui/art/health icon.png")   # 爱心图标
+const SHIELD_PIP := preload("res://ui/shield_pip.gd")   # 一格护盾（盾牌）的脚本
 const INFINITY_TEX := preload("res://ui/art/infinity icon.png")   # ♾️ 图标(无限血量作弊时显示)
 
 @onready var _score_label: Label = $Score   # 左上角的分数文字
@@ -41,19 +41,16 @@ func _ready():
 	_hearts_box.modulate.a = 0.0   # 标题页期间血条先藏起来，等游戏开始再渐显
 	_update_score_label()
 
-# 玩家开局会调用：告诉 HUD 一共几颗心 → 自动补齐或删多余，血条数量永远和 max_hearts 一致
+# 玩家开局会调用：告诉 HUD 一共几格护盾 → 自动补齐或删多余，格数永远和 max_hearts 一致
 func set_max_hearts(n: int) -> void:
 	while _hearts.size() < n:
-		var heart := TextureRect.new()
-		heart.custom_minimum_size = Vector2(192, 192)
-		heart.texture = HEART_TEX
-		heart.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_hearts_box.add_child(heart)
-		_hearts.append(heart)
+		var pip := SHIELD_PIP.new()
+		pip.custom_minimum_size = Vector2(192, 192)
+		_hearts_box.add_child(pip)
+		_hearts.append(pip)
 	while _hearts.size() > n:
-		var heart = _hearts.pop_back()
-		heart.queue_free()
+		var pip = _hearts.pop_back()
+		pip.queue_free()
 	set_hearts(n)
 
 func _process(delta):
@@ -100,10 +97,14 @@ func reveal_hearts() -> void:
 	var tw := create_tween()   # tween = 引擎自带的"补间动画"，让数值在一段时间内平滑变化
 	tw.tween_property(_hearts_box, "modulate:a", 1.0, hearts_fade_in_duration)
 
-# 显示 n 个爱心（其余隐藏）；无限血量模式下爱心始终隐藏，由 ♾️ 顶替
+# 显示剩 n 格护盾：前 n 格亮起，其余变暗壳（直接熄灭、不隐藏）；剩最后 1 格时让它闪红
+# 无限血量模式下所有护盾隐藏，由 ♾️ 顶替
 func set_hearts(n: int) -> void:
 	for i in range(_hearts.size()):
-		_hearts[i].visible = (i < n) and not _infinite
+		var pip = _hearts[i]
+		pip.visible = not _infinite
+		pip.lit = (i < n)
+		pip.warning = (n == 1 and i == 0) and not _infinite
 
 # 无限血量作弊的显示开关：开 = 藏起所有爱心、亮出 ♾️；关 = 收起 ♾️
 # （关掉后玩家脚本会再调一次 set_hearts() 恢复真实血量显示）
@@ -122,6 +123,7 @@ func set_infinite_hearts(on: bool) -> void:
 	if on:
 		for h in _hearts:
 			h.visible = false
+			h.warning = false   # 进开挂模式时关掉残血闪红
 
 # 加分：敌人死的时候会调用它
 func add_score(points: int) -> void:
