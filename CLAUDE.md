@@ -18,54 +18,56 @@
 - **不要用电脑控制（computer-use）替我操作 Godot**，由我自己点。
 - **不要永久删除文件**：要"删"的东西用 `mv` 移动到 `/tmp`，**绝不用 `rm`**。
 - **不要打开可疑或临时链接**。
-- **脚本/场景改名要在 Godot 的 FileSystem 面板里改**（不要在外部直接改文件名），否则会断掉引用。
+- **单个脚本/场景改名优先在 Godot 的 FileSystem 面板里改**（它会自动改引用）；要在外部批量改/搬，必须连同 `.import`/`.uid` 小尾巴一起动、更新所有 `res://` 引用、清 `.godot/imported` 缓存，并做断引用体检（见结构章节末尾）。
 
 ## 项目结构（哪个文件管什么）
-> **文件按"角色/职责"分到了各文件夹**。每个文件夹里：脚本(`.gd`)和场景(`.tscn`)直接放，图片在 `art/` 子文件夹，音效在 `sound/` 子文件夹。找文件时先想"它属于谁"。
+> **文件按"角色/职责"分到中文主文件夹**。每个角色文件夹里：脚本(`.gd`)和场景(`.tscn`)直接放，图片在 `art/` 子文件夹（成组帧动画再分到 `art/xxx帧/`），音效在 `sound/` 子文件夹。找文件先想"它属于谁"。
+> **命名约定**：代码文件(`.gd`/`.tscn`)保留**英文名**只搬家；图片/音效带**角色前缀**（玩家xxx、dust skimmer xxx、Mantis-Lux母舰xxx…）；成组帧图只靠**所在文件夹**区分、帧文件本身保留原名。
 
 **根目录（项目级文件，不要乱挪）**
 - `main.tscn` — 主场景：背景、玩家、敌机生成器(WaveSpawner)、HUD、游戏结束(GameOver)、暂停菜单(PauseMenu)、屏幕震动相机(ShakeCamera)、背景音乐(BGM)、标题画面(StartScreen)、通关结算(Victory)。
-- `project.godot` 项目配置 · `export_presets.cfg` 导出配置 · `icon.svg` 项目图标 · `publish.sh` 发布脚本 · `游戏封面*` 商店封面图。
+- `project.godot` 项目配置 · `export_presets.cfg` 导出配置 · `icon.png` 项目图标 · `publish.sh` 发布脚本。
 - `default_bus_layout.tres` — 音频总线布局(Master/Music/SFX)。**必须留根目录**：Godot 靠固定默认路径 `res://default_bus_layout.tres` 自动加载它，一挪走自定义总线就失效。
 
-**`player/` 玩家**
+**`玩家/` 玩家**
 - `player.gd` — 玩家飞机：移动、空气墙、侧倾、主炮/副炮自动开火、血量与受伤无敌、闪避翻滚(Roll)、**开挂模式**(免伤+攻击力×3)。
-- `player bullet.gd` / `bullet.tscn` 主炮子弹 · `副炮子弹.tscn` 副炮子弹。
-- `art/` ship.png、子弹图、`dodge_frames/`(翻滚帧) · `sound/` 主炮/副炮音效。
+- `player.tscn` 玩家场景 · `player_death.tscn` 死亡爆炸 · `player bullet.gd`/`bullet.tscn` 主炮子弹 · `副炮子弹.tscn` 副炮子弹。
+- `art/` 玩家飞机.png、玩家主炮/副炮子弹.png、玩家护盾.png、`玩家爆炸帧/`、`玩家翻滚帧/` · `sound/` 玩家主炮/副炮音效.wav。
 
-**`boss/` 第三波 Boss(MANTIS-LUX 母舰)**
-- `boss.gd` / `boss.tscn` — 出场无敌、悬停游移、四炮台瞄准、分阶段击破、三招(环形弹幕/炮台机枪/横扫激光)、实体阻挡。
-- `boss_bullet.gd` — 通用子弹；`boss_bullet.tscn`=核心环形弹、`boss_turret_bullet.tscn`=炮台机枪弹。
-- `barrel_explosion.tscn` 炮台爆炸(复用 `effects/explosion.gd`) · `boss_death_anim.gd`/`.tscn` Boss 死亡演出(5秒爆炸解体)。
-- `art/` `boss_cut/`(主体/炮管/炮塔/弹/激光抠图)、`boss_death_frames/`(死亡动画帧)、炮台爆炸序列图 · `sound/` 激光/机关枪/圆环音效 · `raw/` `boss爆炸动画.mp4`(死亡动画源视频)。
+**`敌人/` 杂兵（按敌人名分子文件夹）**
+- `敌人/dust skimmer/` — **第一波**小兵：`dust skimmer.gd`/`enemy.tscn`(V 字进场、悬浮、三炮口开火)；`enemy_bullet.gd`/`dust skimmer amo.tscn` 敌方子弹(向下飞)。`art/`(贴图+子弹图)·`sound/`(子弹音效)。
+- `敌人/side reaper/` — **第二波**精英：`side_reaper.gd`/`side_reaper.tscn`/`side_reaper_explosion.tscn`。`art/`(机身/炮管/激光 + `side reaper爆炸帧/`)·`sound/`(攻击音效)。
+- `敌人/mech arm/` — **第二波**机械臂电锯(场地危险物)：`mech_arm.gd`/`mech_arm.tscn`。`art/`(机械臂/机械臂电锯/机械臂警告图)。
 
-**`enemies/` 杂兵**
-- `dust skimmer.gd` / `enemy.tscn` — **第一波**小兵：V 字进场、悬浮、三炮口开火。
-- `side_reaper.gd` / `side_reaper.tscn` — **第二波**精英；`side_reaper_explosion.tscn` 死亡爆炸。
-- `mech_arm.gd` / `mech_arm.tscn` — **第二波**机械臂电锯(场地危险物)。
-- `enemy_bullet.gd` / `dust skimmer amo.tscn` 敌方子弹(向下飞)。
-- `art/` 各敌机贴图、`side_reaper/`、`side_reaper_boom/`(序列帧) · `sound/` 敌人攻击音效。
+**`Mantis-Lux母舰/` 第三波 Boss(MANTIS-LUX 母舰)**
+- `mantis_lux.gd`/`mantis_lux.tscn` — 出场无敌、悬停游移、四炮台瞄准、分阶段击破、三招(环形弹幕/炮台机枪/横扫激光)、实体阻挡。
+- `mantis_lux_bullet.gd` 通用子弹脚本；`mantis_lux_bullet.tscn`=核心环形弹、`mantis_lux_turret_bullet.tscn`=炮台机枪弹 · `mantis_lux_core.gd` 中央核心。
+- `barrel_explosion.tscn` 炮台爆炸(复用 `特效/explosion.gd`) · `mantis_lux_death_anim.gd`/`.tscn` 死亡演出(5秒爆炸解体) · `shield.gdshader` 隐形护盾着色器。
+- `art/` `母舰拆件/`(主体/炮管/炮塔/弹/激光抠图)、`母舰死亡帧/`、`核心爆炸帧/`、`护盾受击帧/`、Mantis-Lux母舰护盾.png、Mantis-Lux母舰炮台爆炸.png · `sound/` Mantis-Lux母舰激光/机关枪/圆环音效.wav。
 
-**`effects/` 通用特效**
-- `explosion.gd` / `explosion.tscn` — 通用爆炸动画。`art/explosion_frames/` 帧图 · `sound/` 通用爆炸音效(`dust skimmer爆炸音效.wav`，名字带 dust 但其实是通用爆炸声)。
+**`特效/` 通用特效**
+- `explosion.gd`/`explosion.tscn` — 通用爆炸动画。`art/通用爆炸帧/` 帧图 · `sound/通用爆炸音效.wav`(原名带 dust，其实是通用爆炸声)。
 
-**`ui/` 界面**
-- `hud.gd` — **顶部分数** + 左下角爱心血条；开挂时血条显示成 ♾️。
+**`界面/` 界面**
+- `hud.gd` — **顶部分数** + 左下角护盾格血条；开挂时显示成 ♾️。`shield_pip.gd` 单格护盾。
 - `pause.gd` — 暂停菜单(ESC)：音量滑条；**开发者作弊**(密码 `123456` → 波数跳跃 + 开挂模式开关)。
 - `game_over.gd` 游戏结束 · `start_screen.gd` 标题画面 · `victory.gd` 通关结算。
-- `art/` 爱心、♾️、开关图、标题图 · `fonts/` 像素字体 + 分数字体(`.fnt` 用相对路径引图，三个字体文件必须同目录) · `sound/` 结算音效。
+- `art/` 界面无限图标、护盾格满/空/警、开关开/关、标题.png · `fonts/` 像素字体 + 分数字体(`.fnt` 用相对路径引图，三个字体文件必须同目录) · `sound/` 界面铃声/嗖声/印章声(结算音效)。
 
-**`world/` 场景环境**
-- `background.gd` 滚动背景(Parallax2D) · `scroller.gd` 向下滚动物(滚出底部循环回顶) · `art/` bg_top/bottom。
+**`场景/` 场景环境**
+- `background.gd` 滚动背景(Parallax2D) · `art/` 场景背景上/下.png。
 
-**`systems/` 系统**
+**`系统/` 系统**
 - `wave_spawner.gd` — 编队管理：第一波杂兵 → 第二波(Reaper+机械臂) → **第三波 Boss**。含 `jump_to_wave(n)` 作弊跳波。
 - `camera_shake.gd` — 屏幕震动(ShakeCamera)。
 
-**`audio/` 全局音乐**
-- `Skylark - Dancing Colours [ctI87ykv9UI].mp3` — 背景音乐(main.tscn 的 BGM 节点)。
+**`音乐/` 全局音乐**
+- `Skylark - Dancing Colours [...].mp3` — 背景音乐(main.tscn 的 BGM 节点)。
 
-> ⚠️ **要移动/重命名文件，务必连同它的 `.import`(图片/音频)或 `.uid`(脚本)小尾巴一起动**，并更新所有引用它的 `res://` 路径；最好直接在 Godot 的 FileSystem 面板里拖动(它会自动改引用)。
+**`封面/` 商店封面（不参与游戏运行）**
+- itch.io / GitHub 封面成品图 + 游戏封面*.png。发布用，游戏本身不引用。
+
+> ⚠️ **要移动/重命名文件，务必连同它的 `.import`(图片/音频)或 `.uid`(脚本/着色器)小尾巴一起动**，并更新所有引用它的 `res://` 路径；最稳妥是直接在 Godot 的 FileSystem 面板里拖动(它会自动改引用)。批量整理可由 Claude 用脚本(移动 + 全局改 `res://` 引用 + 改 `.import` 的 `source_file` + 清 `.godot/imported` + 断引用体检)在外部完成，完成后我退出再重开 Godot 让它重新导入。
 
 ## 分组(group)约定（用于查找/碰撞判定）
 - 玩家子弹 → `"bullet"`
@@ -111,6 +113,7 @@
 - **Godot 开着的场景/脚本标签页会被存回硬盘**：想从外部 `mv`/删一个 `.tscn`，要**先在 Godot 里关掉它的标签页**（或退出 Godot），否则它会"复活"。同理，被移走文件的脚本标签会报 `File not found` —— 关掉那个标签即可，不影响游戏运行。
 
 ## 历史备注
-- **第三波 Boss = MANTIS-LUX 紫色蝠鲼母舰**（现行版本）：`boss.tscn` / `boss.gd`。出场期间无敌 → 顶部悬停左右游移；四个炮台用支点节点实时瞄准玩家。**分阶段击破**：先逐个打爆四个炮台（各有血量/贴合碰撞/受击闪烁/爆炸），全爆后才打开主体碰撞、进入主体可攻击阶段。**三招**：①核心环形弹幕 ②四炮台机枪散射 ③第二阶段中央横扫激光（整船侧倾、激光始终垂直机身）。Boss 是**实体**，玩家撞上去会被挡住并扣血。
-- **旧 Boss（巨型锯齿战车 boss_sawtank）已彻底废弃删除**：当年试过"伪3D 分层"和"逐帧动画"两版均不理想，连同整批 AI 素材（`boss待机/`、`boss待机2/`、`boss_sawtank*`、`BOSS_待机帧_生成方案.md` 等）已在一次项目整理中**全部删除，不再保留**。
-- **整理过项目**：清掉了所有没被场景/脚本引用的旧素材（源图、抠图中间图、被切过的源序列图、备份、生成动画的网页等）。现在根目录只保留在用文件。
+- **第三波 Boss = MANTIS-LUX 紫色蝠鲼母舰**（现行版本）：`Mantis-Lux母舰/mantis_lux.tscn` / `mantis_lux.gd`。出场期间无敌 → 顶部悬停左右游移；四个炮台用支点节点实时瞄准玩家。**分阶段击破**：先逐个打爆四个炮台（各有血量/贴合碰撞/受击闪烁/爆炸），全爆后才打开主体碰撞、进入主体可攻击阶段。**三招**：①核心环形弹幕 ②四炮台机枪散射 ③第二阶段中央横扫激光（整船侧倾、激光始终垂直机身）。Boss 是**实体**，玩家撞上去会被挡住并扣血。
+- **旧 Boss（巨型锯齿战车 boss_sawtank）已彻底废弃删除**：当年试过"伪3D 分层"和"逐帧动画"两版均不理想，连同整批 AI 素材已在项目整理中全部删除，不再保留。
+- **登陆母舰方案已撤销删除**：`mothership/`(mothership.gd/.tscn)、`母舰登陆_绿幕_1080p.mp4`、`母舰关卡_开发计划.md` 等已删。
+- **2026-06 大整理**：① 删掉所有没被场景/脚本引用的文件（死代码、源大图、重复 mp3、旧血条/标题图、web 导出产物 build/、封面草稿和脚本、旧开发文档）。② 文件夹全部中文化（player→玩家、enemies→敌人、boss→`Mantis-Lux母舰`、world→场景、effects→特效、ui→界面、systems→系统、music→音乐、cover→封面），敌人按名分 `dust skimmer/`、`side reaper/`、`mech arm/`。③ 图片/音效加角色前缀；**代码文件保留英文名只搬家**，Boss 代码文件去 boss 字样改 `mantis_lux*`；成组帧图只改所在文件夹名、帧文件保留原名。④ 整套用脚本在外部完成（移动+全局改引用+改 `.import` 的 source_file+清 `.godot/imported`+断引用体检全过）。

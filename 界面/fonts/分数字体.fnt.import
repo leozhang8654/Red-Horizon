@@ -1,0 +1,17 @@
+[remap]
+
+importer="font_data_bmfont"
+type="FontFile"
+uid="uid://dltbhso1dq4sl"
+path="res://.godot/imported/分数字体.fnt-968e19f091b25d450fe7c29c2112b981.fontdata"
+
+[deps]
+
+source_file="res://界面/fonts/分数字体.fnt"
+dest_files=["res://.godot/imported/分数字体.fnt-968e19f091b25d450fe7c29c2112b981.fontdata"]
+
+[params]
+
+fallbacks=[]
+compress=true
+scaling_mode=2

@@ -1,0 +1,225 @@
+[gd_scene format=3 uid="uid://bae10jky4ubsl"]
+
+[ext_resource type="Script" uid="uid://bejfuk0p2cmlg" path="res://Mantis-Lux母舰/mantis_lux.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://bb0saso5lv4eg" path="res://Mantis-Lux母舰/art/母舰拆件/body_full.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://dbooact0vhu8" path="res://Mantis-Lux母舰/art/母舰拆件/barrel_left.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://ds47fhxwia4xh" path="res://Mantis-Lux母舰/art/母舰拆件/barrel_right.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://cyagsdtki3wdo" path="res://Mantis-Lux母舰/art/母舰拆件/drone_left.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://ceo3u1r73c3v0" path="res://Mantis-Lux母舰/art/母舰拆件/drone_right.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://c7soj73nm3j3n" path="res://Mantis-Lux母舰/art/母舰拆件/laser.png" id="7"]
+[ext_resource type="AudioStream" uid="uid://f1jytm6jufeq" path="res://Mantis-Lux母舰/sound/Mantis-Lux母舰激光音效.wav" id="8"]
+[ext_resource type="AudioStream" uid="uid://helrbt1xl77d" path="res://Mantis-Lux母舰/sound/Mantis-Lux母舰圆环音效.wav" id="9"]
+[ext_resource type="AudioStream" uid="uid://rkdvesp3b6f1" path="res://Mantis-Lux母舰/sound/Mantis-Lux母舰机关枪音效.wav" id="10"]
+[ext_resource type="Script" uid="uid://ddutkqcb11wfo" path="res://Mantis-Lux母舰/mantis_lux_core.gd" id="11_core"]
+[ext_resource type="Texture2D" uid="uid://doyg2c4ikdtha" path="res://Mantis-Lux母舰/art/母舰拆件/boss核心.png" id="12_corepng"]
+[ext_resource type="Texture2D" uid="uid://xqeiincbbbtp" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_1.png" id="13_b1"]
+[ext_resource type="Texture2D" uid="uid://pgdltpvwb3ie" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_2.png" id="14_b2"]
+[ext_resource type="Texture2D" uid="uid://cigpvx5ofqtav" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_3.png" id="15_b3"]
+[ext_resource type="Texture2D" uid="uid://1qca6gv1pmml" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_4.png" id="16_b4"]
+[ext_resource type="Texture2D" uid="uid://b520fhex5qqbc" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_5.png" id="17_b5"]
+[ext_resource type="Texture2D" uid="uid://dh8v87gvphwc4" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_6.png" id="18_b6"]
+[ext_resource type="Texture2D" uid="uid://dkroj6bqqgg63" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_7.png" id="19_b7"]
+[ext_resource type="Texture2D" uid="uid://bu2bqi4wtd5v8" path="res://Mantis-Lux母舰/art/核心爆炸帧/boom_8.png" id="20_b8"]
+[ext_resource type="Shader" uid="uid://dratb4dlpoo8h" path="res://Mantis-Lux母舰/shield.gdshader" id="31_shield"]
+[ext_resource type="Texture2D" uid="uid://brmrk2gb8qqoo" path="res://Mantis-Lux母舰/art/Mantis-Lux母舰护盾.png" id="32_shieldtex"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_shield"]
+shader = ExtResource("31_shield")
+shader_parameter/hits = PackedVector2Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/strengths = PackedFloat32Array(0, 0, 0, 0, 0, 0, 0, 0)
+shader_parameter/reveal_radius = 0.22
+shader_parameter/glow = 2.2
+shader_parameter/aspect = 1.333
+shader_parameter/base_alpha = 0.0
+shader_parameter/hit_opacity = 1.8
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_coreboom"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("13_b1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("14_b2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("15_b3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("16_b4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("17_b5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("18_b6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("19_b7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("20_b8")
+}],
+"loop": false,
+"name": &"default",
+"speed": 14.0
+}]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_core"]
+radius = 95.0
+
+[node name="Boss" type="Area2D" unique_id=509877766]
+scale = Vector2(1.5, 1.5)
+script = ExtResource("1")
+max_hp = 50.0
+turret_score = 200
+core_score = 1000
+
+[node name="Body" type="Sprite2D" parent="." unique_id=65991666]
+position = Vector2(1.5, 116)
+texture = ExtResource("2")
+
+[node name="Shield" type="Sprite2D" parent="." unique_id=562924852]
+material = SubResource("ShaderMaterial_shield")
+position = Vector2(1.5, 150)
+texture = ExtResource("32_shieldtex")
+
+[node name="BarrelLeftPivot" type="Node2D" parent="." unique_id=253705993]
+position = Vector2(-274.5, 54)
+
+[node name="BarrelLeft" type="Sprite2D" parent="BarrelLeftPivot" unique_id=1631930513]
+position = Vector2(-75.5, 1.3333349)
+texture = ExtResource("3")
+
+[node name="Hit" type="Area2D" parent="BarrelLeftPivot/BarrelLeft" unique_id=2091290205]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BarrelLeftPivot/BarrelLeft/Hit" unique_id=1762921974]
+polygon = PackedVector2Array(76, -67.5, 112, -64.5, 139, -46.5, 130, -31.5, 142, -22.5, 139, 22.5, 130, 31.5, 139, 46.5, 112, 64.5, 70, 67.5, 28, 58.5, 1, 46.5, -29, 43.5, -41, 28.5, -89, 31.5, -107, 19.5, -140, 19.5, -140, -13.5, -104, -13.5, -89, -25.5, -41, -25.5, -32, -37.5, 73, -64.5)
+
+[node name="Muzzle" type="Marker2D" parent="BarrelLeftPivot/BarrelLeft" unique_id=1750882170]
+position = Vector2(-135, -8)
+
+[node name="Muzzle" type="Marker2D" parent="BarrelLeftPivot/BarrelLeft/Muzzle" unique_id=1426919746]
+position = Vector2(-1.6666718, 19.663332)
+
+[node name="Muzzle" type="Marker2D" parent="BarrelLeftPivot/BarrelLeft/Muzzle/Muzzle" unique_id=2035336589]
+position = Vector2(963.3333, 1.666666)
+
+[node name="BarrelRightPivot" type="Node2D" parent="." unique_id=242836892]
+position = Vector2(278.5, 57)
+
+[node name="BarrelRight" type="Sprite2D" parent="BarrelRightPivot" unique_id=1209219247]
+position = Vector2(68.16667, 2.999998)
+texture = ExtResource("4")
+
+[node name="Hit" type="Area2D" parent="BarrelRightPivot/BarrelRight" unique_id=1995281062]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BarrelRightPivot/BarrelRight/Hit" unique_id=528646655]
+polygon = PackedVector2Array(-87.5, -66, -39.5, -60, 8.5, -42, 41.5, -36, 47.5, -24, 95.5, -27, 113.5, -18, 134.5, -18, 134.5, -6, 113.5, -6, 101.5, 0, 113.5, 6, 134.5, 6, 137.5, 15, 101.5, 21, 95.5, 30, 47.5, 27, 35.5, 42, 8.5, 45, -18.5, 57, -60.5, 66, -105.5, 63, -129.5, 48, -123.5, 30, -132.5, 21, -135.5, -9, -123.5, -30, -129.5, -48, -105.5, -63, -90.5, -63)
+
+[node name="Muzzle" type="Marker2D" parent="BarrelRightPivot/BarrelRight" unique_id=546902541]
+position = Vector2(131.67003, -13.330003)
+
+[node name="DroneLeftPivot" type="Node2D" parent="." unique_id=371997390]
+position = Vector2(-198.5, -116)
+
+[node name="DroneLeft" type="Sprite2D" parent="DroneLeftPivot" unique_id=633699519]
+position = Vector2(-0.8333333, -40.000004)
+texture = ExtResource("5")
+
+[node name="Hit" type="Area2D" parent="DroneLeftPivot/DroneLeft" unique_id=234902592]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="DroneLeftPivot/DroneLeft/Hit" unique_id=383067103]
+position = Vector2(0, -1.3333335)
+polygon = PackedVector2Array(-28.5, -87, -13.5, -84, -13.5, -36, -4.5, -27, 7.5, -27, 16.5, -39, 16.5, -87, 31.5, -84, 40.5, -39, 37.5, -24, 55.5, 6, 55.5, 42, 49.5, 60, 34.5, 78, 25.5, 78, 16.5, 87, -16.5, 87, -28.5, 84, -43.5, 69, -55.5, 42, -55.5, 6, -37.5, -36, -28.5, -84)
+
+[node name="Muzzle" type="Marker2D" parent="DroneLeftPivot/DroneLeft" unique_id=438265397]
+position = Vector2(-21.666653, -81.666664)
+
+[node name="Muzzle" type="Marker2D" parent="DroneLeftPivot/DroneLeft/Muzzle" unique_id=450367337]
+position = Vector2(45.00001, 3.3333359)
+
+[node name="DroneRightPivot" type="Node2D" parent="." unique_id=347288042]
+position = Vector2(199.5, -118)
+
+[node name="DroneRight" type="Sprite2D" parent="DroneRightPivot" unique_id=365130427]
+position = Vector2(0.5000051, -39.999992)
+texture = ExtResource("6")
+
+[node name="Hit" type="Area2D" parent="DroneRightPivot/DroneRight" unique_id=757749081]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="DroneRightPivot/DroneRight/Hit" unique_id=1814084565]
+polygon = PackedVector2Array(-29, -86.5, -17, -86.5, -14, -35.5, -8, -29.5, 4, -29.5, 10, -35.5, 13, -86.5, 28, -83.5, 28, -59.5, 46, -20.5, 55, 15.5, 52, 45.5, 43, 66.5, 31, 78.5, 25, 75.5, 16, 87.5, -14, 87.5, -44, 66.5, -53, 45.5, -53, 3.5, -32, -56.5, -29, -83.5)
+
+[node name="Muzzle" type="Marker2D" parent="DroneRightPivot/DroneRight" unique_id=232266506]
+position = Vector2(-25.000011, -76.66334)
+
+[node name="Muzzle" type="Marker2D" parent="DroneRightPivot/DroneRight/Muzzle" unique_id=1706889999]
+position = Vector2(46.666668, -7.6293945e-06)
+
+[node name="CoreMuzzle" type="Marker2D" parent="." unique_id=942532486]
+position = Vector2(0, 263)
+
+[node name="RingCore" type="Marker2D" parent="." unique_id=2030007684]
+position = Vector2(1.3333334, 27.333344)
+
+[node name="Core" type="Node2D" parent="." unique_id=192827039]
+visible = false
+position = Vector2(1.3333334, 27.333344)
+script = ExtResource("11_core")
+
+[node name="Sprite" type="Sprite2D" parent="Core" unique_id=1360912290]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("12_corepng")
+offset = Vector2(0.5, 59)
+
+[node name="Boom" type="AnimatedSprite2D" parent="Core" unique_id=2031507043]
+visible = false
+scale = Vector2(0.73, 0.73)
+sprite_frames = SubResource("SpriteFrames_coreboom")
+
+[node name="Hit" type="Area2D" parent="Core" unique_id=1802296578]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Core/Hit" unique_id=1386686854]
+shape = SubResource("CircleShape2D_core")
+
+[node name="LaserWarn" type="Line2D" parent="." unique_id=789852202]
+visible = false
+top_level = true
+width = 6.0
+default_color = Color(1, 0.15, 0.15, 0.8)
+
+[node name="LaserBeam" type="Sprite2D" parent="." unique_id=710040701]
+visible = false
+top_level = true
+scale = Vector2(0.6, 1.5)
+texture = ExtResource("7")
+offset = Vector2(0, -1079)
+
+[node name="LaserSound" type="AudioStreamPlayer" parent="." unique_id=34433401]
+stream = ExtResource("8")
+bus = &"SFX"
+
+[node name="RingSound" type="AudioStreamPlayer" parent="." unique_id=375649819]
+stream = ExtResource("9")
+volume_db = -12.0
+max_polyphony = 3
+bus = &"SFX"
+
+[node name="MgSound" type="AudioStreamPlayer" parent="." unique_id=1544808188]
+stream = ExtResource("10")
+volume_db = -8.0
+max_polyphony = 2
+bus = &"SFX"
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=1787998150]
+position = Vector2(1.333313, 3.3333282)
+polygon = PackedVector2Array(-11.5, -382, 12.5, -382, 66.5, -292, 72.5, -352, 84.5, -346, 126.5, -232, 138.5, -238, 144.5, -280, 162.5, -268, 180.5, -172, 228.5, -142, 264.5, -82, 348.5, -16, 366.5, -40, 384.5, -40, 390.5, 2, 408.5, 26, 414.5, -4, 432.5, 8, 498.5, 110, 564.5, 260, 552.5, 266, 432.5, 176, 336.5, 170, 324.5, 182, 288.5, 182, 210.5, 230, 120.5, 338, 108.5, 302, 66.5, 314, 36.5, 386, 24.5, 374, -35.5, 386, -65.5, 314, -107.5, 302, -119.5, 338, -209.5, 230, -287.5, 182, -341.5, 170, -431.5, 176, -503.5, 218, -551.5, 266, -563.5, 260, -497.5, 110, -431.5, 8, -413.5, -4, -407.5, 26, -377.5, -46, -347.5, -16, -275.5, -70, -227.5, -142, -179.5, -172, -155.5, -274, -143.5, -280, -125.5, -226, -119.5, -262, -95.5, -286, -83.5, -346, -71.5, -352, -65.5, -292, -11.5, -376)
+disabled = true
+
+[node name="Solid" type="AnimatableBody2D" parent="." unique_id=45803094]
+sync_to_physics = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Solid" unique_id=1901210771]
+position = Vector2(1.333313, 3.3333282)
+polygon = PackedVector2Array(-11.5, -382, 12.5, -382, 66.5, -292, 72.5, -352, 84.5, -346, 126.5, -232, 138.5, -238, 144.5, -280, 162.5, -268, 180.5, -172, 228.5, -142, 264.5, -82, 348.5, -16, 366.5, -40, 384.5, -40, 390.5, 2, 408.5, 26, 414.5, -4, 432.5, 8, 498.5, 110, 564.5, 260, 552.5, 266, 432.5, 176, 336.5, 170, 324.5, 182, 288.5, 182, 210.5, 230, 120.5, 338, 108.5, 302, 66.5, 314, 36.5, 386, 24.5, 374, -35.5, 386, -65.5, 314, -107.5, 302, -119.5, 338, -209.5, 230, -287.5, 182, -341.5, 170, -431.5, 176, -503.5, 218, -551.5, 266, -563.5, 260, -497.5, 110, -431.5, 8, -413.5, -4, -407.5, 26, -377.5, -46, -347.5, -16, -275.5, -70, -227.5, -142, -179.5, -172, -155.5, -274, -143.5, -280, -125.5, -226, -119.5, -262, -95.5, -286, -83.5, -346, -71.5, -352, -65.5, -292, -11.5, -376)

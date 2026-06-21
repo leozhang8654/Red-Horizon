@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://c3plvlettxra3"]
+
+[ext_resource type="Script" uid="uid://cuuq28bi64kv1" path="res://玩家/player.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bcg3ca4ovxaqs" path="res://玩家/art/玩家飞机.png" id="2_ship"]
+[ext_resource type="AudioStream" uid="uid://b2nijfrnstgup" path="res://玩家/sound/玩家主炮音效.wav" id="13_mainsfx"]
+[ext_resource type="AudioStream" uid="uid://ch35wo630314i" path="res://玩家/sound/玩家副炮音效.wav" id="14_sidesfx"]
+[ext_resource type="AudioStream" uid="uid://df5ixxeboin5y" path="res://界面/sound/界面嗖声.mp3" id="26_whoosh"]
+[ext_resource type="Texture2D" uid="uid://dhgm8d0eyfwfx" path="res://玩家/art/玩家翻滚帧/roll_1.png" id="roll1"]
+[ext_resource type="Texture2D" uid="uid://ksc1mjknv5kq" path="res://玩家/art/玩家翻滚帧/roll_2.png" id="roll2"]
+[ext_resource type="Texture2D" uid="uid://bvc4k2usg462p" path="res://玩家/art/玩家翻滚帧/roll_3.png" id="roll3"]
+[ext_resource type="Texture2D" uid="uid://dvteok4m6v11m" path="res://玩家/art/玩家翻滚帧/roll_4.png" id="roll4"]
+[ext_resource type="Texture2D" uid="uid://lu62pgxx710i" path="res://玩家/art/玩家翻滚帧/roll_5.png" id="roll5"]
+[ext_resource type="Texture2D" uid="uid://b7gjv1ys5c5i7" path="res://玩家/art/玩家翻滚帧/roll_6.png" id="roll6"]
+[ext_resource type="Texture2D" uid="uid://pwnmurwtusb0" path="res://玩家/art/玩家翻滚帧/roll_7.png" id="roll7"]
+[ext_resource type="Texture2D" uid="uid://oidjb8xl5ix0" path="res://玩家/art/玩家翻滚帧/roll_8.png" id="roll8"]
+[ext_resource type="Texture2D" uid="uid://yjm4hbb18m1w" path="res://玩家/art/玩家翻滚帧/roll_9.png" id="roll9"]
+[ext_resource type="Texture2D" uid="uid://bomf50ph3ueht" path="res://玩家/art/玩家翻滚帧/roll_10.png" id="roll10"]
+[ext_resource type="Texture2D" uid="uid://df56nyxnsf4f2" path="res://玩家/art/玩家翻滚帧/roll_11.png" id="roll11"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_roll"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("roll1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll6")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll9")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll10")
+}, {
+"duration": 1.0,
+"texture": ExtResource("roll11")
+}],
+"loop": false,
+"name": &"roll",
+"speed": 20.0
+}]
+
+[node name="Player" type="CharacterBody2D" unique_id=274741921]
+script = ExtResource("1_script")
+finale_burst_accel = 25000.0
+finale_burst_shake = 700.0
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=64726947]
+scale = Vector2(0.3032, 0.3032)
+texture = ExtResource("2_ship")
+
+[node name="DodgeBarAnchor" type="Marker2D" parent="." unique_id=1378225419]
+position = Vector2(161, -87)
+
+[node name="Roll" type="AnimatedSprite2D" parent="." unique_id=80453570]
+visible = false
+scale = Vector2(1.45, 1.45)
+sprite_frames = SubResource("SpriteFrames_roll")
+animation = &"roll"
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="." unique_id=2055772904]
+polygon = PackedVector2Array(1.8, -174.9, 16.7, -151.6, 22.4, -128.2, 59.1, -104.9, 62.8, -81.6, 68.5, -58.2, 76.1, -34.9, 88.18707, -25.746674, 107, -11.5, 115.5, 12.1, 121.3, 35.5, 150.1, 58.8, 157.6, 82.2, 162.8, 105.5, 36.1, 128.8, 24.3, 152.2, 0.6, 175.8, -0.9, 175.8, -25.8, 152.2, -36.4, 128.8, -163.1, 105.5, -158, 82.2, -150.4, 58.8, -121.6, 35.5, -115.8, 12.1, -107, -11.5, -76.4, -34.9, -68.8, -58.2, -63.1, -81.6, -59.4, -104.9, -23, -128.2, -17, -151.6, -2.1, -174.9)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1861022132]
+enabled = false
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1566810209]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Hurtbox" unique_id=932012795]
+polygon = PackedVector2Array(-35, -60, 35, -60, 36, 60, -35, 60)
+
+[node name="MainSound" type="AudioStreamPlayer" parent="." unique_id=794801330]
+stream = ExtResource("13_mainsfx")
+volume_db = -30.0
+max_polyphony = 5
+bus = &"SFX"
+
+[node name="SideSound" type="AudioStreamPlayer" parent="." unique_id=1698824917]
+stream = ExtResource("14_sidesfx")
+volume_db = -25.0
+max_polyphony = 6
+bus = &"SFX"
+
+[node name="Whoosh" type="AudioStreamPlayer" parent="." unique_id=369882865]
+stream = ExtResource("26_whoosh")
+bus = &"SFX"
