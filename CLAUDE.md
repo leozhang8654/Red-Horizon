@@ -90,6 +90,16 @@
 ## 项目参数
 - 视口分辨率：1152 × 648（见 `project.godot`）。
 
+## 屏幕适配铁律（⚠️ 反复踩坑，动 UI/新场景前必读）
+本游戏是**"窗口多大、画面就画多大"的自适应设计**（窗口=画布，按真实物理像素算视口；Retina 屏的真实绘制区域比看上去大很多）。这条是全局前提，违反它就会出现"画面只占左上角一块"或"主游戏整体错位/溢出裁切"。
+
+- **🚫 绝对不准给 `project.godot` 加 `window/stretch/*` 设置**（mode / aspect 都不行）。用户已**明确否决过**；加了会让主游戏按"固定 1152×648 小画布再整体放大"渲染，导致写死像素的元素（如血条 192px）比例全错、标题溢出，还会炸编辑器运行。**改了发现主游戏错位，第一件事就是检查是不是混进了 stretch，有就删掉。**
+- **🚫 不要用写死的固定像素铺满**（如 `offset_right = 1152`、`size = Vector2(1152, 648)` 当背景/底板）。在 Retina/最大化的大窗口里它只会盖住左上角一小块。
+- **✅ 满铺背景/底板**：用满铺锚点——`anchors_preset = 15`、`anchor_right = 1.0`、`anchor_bottom = 1.0`、`grow_horizontal = 2`、`grow_vertical = 2`，让它四边贴窗口、跟着窗口长。
+- **✅ 居中元素**（标题/提示）：锚到窗口中心——`anchor_left = 0.0 / anchor_right = 1.0`（横向占满好居中）+ `anchor_top = anchor_bottom = 0.5`，再用 `offset_top/bottom` 相对中心上下微调；配 `horizontal_alignment = 1`、`vertical_alignment = 1`。
+- **✅ 代码里要用尺寸**：一律用 `get_viewport_rect().size`**运行时实时取真实窗口大小**，别把 1152/648 写死进逻辑（玩家活动范围、生成位置等都照此）。
+- 背景滚动等需随窗口变化的，监听 `size_changed` 重新布局（`background.gd` 已是这么做的）。
+
 ## 容易踩的坑
 - **改了贴图(PNG)但游戏里没变**：Godot 缓存了旧图。把 `.godot/imported/` 里对应的 `.ctex` 和 `.md5` 用 `mv` 移到 `/tmp`，再让我回到 Godot 自动重新导入（或右键 PNG → Reimport）。
 - **图片"假透明"**（看着是棋盘格背景，其实背景被烤进像素里）：需要用边缘洪水填充(flood-fill)抠图，把浅色低饱和的背景设为透明。

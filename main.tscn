@@ -1,17 +1,17 @@
 [gd_scene format=3 uid="uid://bixtlsp4dls3q"]
 
-[ext_resource type="PackedScene" path="res://player/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" uid="uid://c3plvlettxra3" path="res://player/player.tscn" id="1_player"]
 [ext_resource type="Script" uid="uid://c7vxveq2ko702" path="res://world/background.gd" id="3_bg"]
 [ext_resource type="Texture2D" uid="uid://bqfm7e1s0taq0" path="res://world/art/bg_bottom.png" id="4_bgtop"]
 [ext_resource type="Texture2D" uid="uid://835gn8oogief" path="res://world/art/bg_top.png" id="6_bgbot"]
 [ext_resource type="PackedScene" uid="uid://xo1klreqsu2e" path="res://enemies/enemy.tscn" id="7_enemy"]
 [ext_resource type="Script" uid="uid://drd2fadv0us1e" path="res://systems/wave_spawner.gd" id="8_wave"]
-[ext_resource type="Script" path="res://ui/shield_pip.gd" id="9_shield"]
+[ext_resource type="Script" uid="uid://bmfleu25w8sbt" path="res://ui/shield_pip.gd" id="9_shield"]
 [ext_resource type="Script" uid="uid://dylcvr7bxmhqs" path="res://ui/hud.gd" id="10_hud"]
 [ext_resource type="Script" uid="uid://bwbvm3cejhk3" path="res://ui/game_over.gd" id="11_go"]
 [ext_resource type="Script" uid="uid://xxa80trugu1c" path="res://systems/camera_shake.gd" id="12_cam"]
 [ext_resource type="Script" uid="uid://cplwmmavcglm6" path="res://ui/pause.gd" id="15_pause"]
-[ext_resource type="PackedScene" path="res://enemies/side_reaper.tscn" id="16_reaper"]
+[ext_resource type="PackedScene" uid="uid://bbhtfuir2acuw" path="res://enemies/side_reaper.tscn" id="16_reaper"]
 [ext_resource type="PackedScene" uid="uid://blb0300o5yikw" path="res://enemies/mech_arm.tscn" id="17_arm"]
 [ext_resource type="PackedScene" uid="uid://bae10jky4ubsl" path="res://boss/boss.tscn" id="18_boss"]
 [ext_resource type="Script" uid="uid://csgc1g0ch0gj" path="res://ui/start_screen.gd" id="19_start"]
@@ -19,11 +19,11 @@
 [ext_resource type="FontFile" uid="uid://dltbhso1dq4sl" path="res://ui/fonts/分数字体.fnt" id="21_scorefont"]
 [ext_resource type="FontFile" uid="uid://dr5arval66lmd" path="res://ui/fonts/fusion-pixel-12px-proportional-zh_hans.ttf" id="22_pixfont"]
 [ext_resource type="Script" uid="uid://cb31vpm8lrejk" path="res://ui/victory.gd" id="23_vic"]
-[ext_resource type="AudioStream" path="res://ui/sound/dragon-studio-bell-ring-390294.mp3" id="24_ding"]
-[ext_resource type="AudioStream" path="res://ui/sound/freesound_community-traditional-stamp-44189.mp3" id="25_stamp"]
+[ext_resource type="AudioStream" uid="uid://cgdobwi1rieaj" path="res://ui/sound/dragon-studio-bell-ring-390294.mp3" id="24_ding"]
+[ext_resource type="AudioStream" uid="uid://bq3ou0u3hgn4c" path="res://ui/sound/freesound_community-traditional-stamp-44189.mp3" id="25_stamp"]
+[ext_resource type="AudioStream" uid="uid://cvuylodyju8ac" path="res://music/Skylark - Dancing Colours [ctI87ykv9UI].mp3" id="27_bgm"]
 [ext_resource type="Texture2D" uid="uid://beyg20oehqnv7" path="res://ui/art/switch_off.png" id="sw_off"]
 [ext_resource type="Texture2D" uid="uid://cncq8jmwh3kbl" path="res://ui/art/switch_on.png" id="sw_on"]
-[ext_resource type="AudioStream" uid="uid://cvuylodyju8ac" path="res://audio/Skylark - Dancing Colours [ctI87ykv9UI].mp3" id="27_bgm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rank"]
 bg_color = Color(0, 0, 0, 0)
@@ -39,12 +39,12 @@ corner_radius_bottom_left = 170
 
 [node name="Node2D" type="Node2D" unique_id=787609847]
 
-[node name="BGM" type="AudioStreamPlayer" parent="."]
-bus = &"Music"
+[node name="BGM" type="AudioStreamPlayer" parent="." unique_id=1869460077]
 process_mode = 3
 stream = ExtResource("27_bgm")
 volume_db = -21.4
 autoplay = true
+bus = &"Music"
 
 [node name="Background" type="Parallax2D" parent="." unique_id=538206389]
 z_index = -100
@@ -59,7 +59,7 @@ centered = false
 texture = ExtResource("6_bgbot")
 centered = false
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="Player" parent="." unique_id=190701353 instance=ExtResource("1_player")]
 position = Vector2(576, 324)
 
 [node name="WaveSpawner" type="Node2D" parent="." unique_id=1965328490]
@@ -165,16 +165,16 @@ horizontal_alignment = 1
 [node name="Victory" type="CanvasLayer" parent="." unique_id=1322566337]
 script = ExtResource("23_vic")
 
-[node name="Ding" type="AudioStreamPlayer" parent="Victory"]
-bus = &"SFX"
+[node name="Ding" type="AudioStreamPlayer" parent="Victory" unique_id=49522029]
 stream = ExtResource("24_ding")
 volume_db = -6.0
 max_polyphony = 4
-
-[node name="StampSound" type="AudioStreamPlayer" parent="Victory"]
 bus = &"SFX"
+
+[node name="StampSound" type="AudioStreamPlayer" parent="Victory" unique_id=653698279]
 stream = ExtResource("25_stamp")
 volume_db = -2.0
+bus = &"SFX"
 
 [node name="Bg" type="ColorRect" parent="Victory" unique_id=101196524]
 anchors_preset = 15
@@ -295,7 +295,7 @@ text = "0"
 [node name="RankBox" type="CenterContainer" parent="Victory/Center/VBox/Body" unique_id=503659218]
 layout_mode = 2
 
-[node name="RankCol" type="VBoxContainer" parent="Victory/Center/VBox/Body/RankBox"]
+[node name="RankCol" type="VBoxContainer" parent="Victory/Center/VBox/Body/RankBox" unique_id=152508474]
 layout_mode = 2
 theme_override_constants/separation = 28
 alignment = 1
@@ -315,7 +315,7 @@ text = "S"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Perfect" type="Label" parent="Victory/Center/VBox/Body/RankBox/RankCol"]
+[node name="Perfect" type="Label" parent="Victory/Center/VBox/Body/RankBox/RankCol" unique_id=1040763327]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
 theme_override_fonts/font = ExtResource("22_pixfont")
@@ -323,7 +323,7 @@ theme_override_font_sizes/font_size = 55
 text = "PERFECT 无伤"
 horizontal_alignment = 1
 
-[node name="HighScore" type="Label" parent="Victory/Center/VBox"]
+[node name="HighScore" type="Label" parent="Victory/Center/VBox" unique_id=518823714]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.65, 0.7, 1)
 theme_override_fonts/font = ExtResource("22_pixfont")
@@ -375,18 +375,18 @@ theme_override_font_sizes/font_size = 36
 text = "空格 继续游戏    ·    R 重新开始"
 horizontal_alignment = 1
 
-[node name="MusicRow" type="HBoxContainer" parent="PauseMenu/Center/VBox"]
+[node name="MusicRow" type="HBoxContainer" parent="PauseMenu/Center/VBox" unique_id=1584115315]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="MusicLabel" type="Label" parent="PauseMenu/Center/VBox/MusicRow"]
+[node name="MusicLabel" type="Label" parent="PauseMenu/Center/VBox/MusicRow" unique_id=989508887]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "音乐"
 
-[node name="MusicSlider" type="HSlider" parent="PauseMenu/Center/VBox/MusicRow"]
+[node name="MusicSlider" type="HSlider" parent="PauseMenu/Center/VBox/MusicRow" unique_id=103299240]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_vertical = 4
@@ -394,18 +394,18 @@ max_value = 1.0
 step = 0.01
 value = 1.0
 
-[node name="SfxRow" type="HBoxContainer" parent="PauseMenu/Center/VBox"]
+[node name="SfxRow" type="HBoxContainer" parent="PauseMenu/Center/VBox" unique_id=1911089830]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="SfxLabel" type="Label" parent="PauseMenu/Center/VBox/SfxRow"]
+[node name="SfxLabel" type="Label" parent="PauseMenu/Center/VBox/SfxRow" unique_id=679535960]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("22_pixfont")
 theme_override_font_sizes/font_size = 32
 text = "音效"
 
-[node name="SfxSlider" type="HSlider" parent="PauseMenu/Center/VBox/SfxRow"]
+[node name="SfxSlider" type="HSlider" parent="PauseMenu/Center/VBox/SfxRow" unique_id=995241254]
 custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
 size_flags_vertical = 4

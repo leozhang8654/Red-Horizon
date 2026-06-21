@@ -30,7 +30,7 @@ var _best_score := 0                        # 读出来的历史最高分
 func _ready():
 	add_to_group("victory")                   # 加入分组，boss.gd / pause.gd 用分组名找到我
 	visible = false                           # 平时藏着
-	process_mode = Node.PROCESS_MODE_ALWAYS   # 结算时全场冻结，我自己还要能收"空格重开"
+	process_mode = Node.PROCESS_MODE_ALWAYS   # 结算时全场冻结，我自己还要能收"空格进入母舰"
 
 # Boss 死亡瞬间由 boss.gd 调用：立刻停表（用时只算到击杀那一刻），
 # 然后按时间线推进：爆炸演出 → 飞机谢幕冲出屏幕 → 结算页推近登场

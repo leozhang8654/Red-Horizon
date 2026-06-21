@@ -10,19 +10,29 @@ extends Area2D
 @export var hover_y := 550.0          # 就位后机身中心悬停的高度
 @export var drift_x := 650.0          # 左右游移幅度（离屏幕中线最多偏多少像素）
 @export var drift_speed := 0.3        # 左右游移快慢（越大来回越快）
+@export var center_speed := 350.0     # 核心爆后飞回屏幕中央的速度（像素/秒）
 @export var score_value := 10000       # 击毁得分
 
 # —— 受击闪烁 ——
 @export var blink_persist := 0.06     # 每次中弹后白光持续多久
 @export var blink_brightness := 1.6   # 白光亮度倍数
 
+# —— 隐形盾（命中才显形）——
+# 阶段1/2a 打 Boss 本体：不掉血，只在命中点冒一小片红色六边形冲击网格再淡出。
+@export var shield_turret_skip := 130.0   # "通向炮台的弹道"横向半宽(像素)：子弹横向离活炮台小于它→放行不挡，让它去打炮台
+
 # —— 炮台瞄准 ——
 @export var turrets_aim := true        # 四个炮台是否实时瞄准玩家
 @export var turret_aim_smooth := 6.0   # 炮台转向平滑度（越大锁得越快，越小越“迟钝”）
 
-# —— 分阶段击破：先打四个炮台，全爆后主体才可攻击 ——
+# —— 分阶段击破：先打四个炮台，全爆后才暴露中央核心 ——
 @export var turret_hp := 50.0          # 每个炮台的血量
 @export var turret_score := 800        # 打爆一个炮台的得分
+
+# —— 阶段2a：中央核心（炮台全爆后暴露；打爆它才解全盾、开放本体血量）——
+@export var core_hp := 200.0           # 核心血量（玩家子弹每发约扣 1）
+@export var core_score := 1500         # 打爆核心的得分
+@export var core_hit_skip := 150.0     # "通向核心的弹道"横向半宽(像素)：子弹横向离暴露的核心小于它→放行不挡，让它去打核心
 
 # —— 招式①：环形弹幕（从核心 RingCore 向四周喷一整圈）——
 @export var ring_attack := true        # 是否开启环形弹幕
@@ -54,6 +64,14 @@ var _bullet_scene := preload("res://boss/boss_bullet.tscn")   # Boss 核心子�
 var _turret_bullet_scene := preload("res://boss/boss_turret_bullet.tscn")   # 炮台机枪子弹
 var _barrel_explosion_scene := preload("res://boss/barrel_explosion.tscn")   # 炮台专用爆炸
 var _death_anim_scene := preload("res://boss/boss_death_anim.tscn")   # 死亡演出(5秒爆炸解体动画)
+# —— 隐形护盾（shader 局部点亮：平时全透明，命中处就近点亮一块再淡掉）——
+const SHIELD_MAX_HITS := 8
+@export var shield_reveal_decay := 1.8   # 命中点亮后多快淡掉(越大灭得越快)
+var _shield: Sprite2D = null
+var _shield_mat: ShaderMaterial = null
+var _shield_hits := PackedVector2Array()
+var _shield_str := PackedFloat32Array()
+var _shield_write := 0
 var _hp := 0.0
 var _dead := false
 var _entered := false      # 是否已压入就位
@@ -82,7 +100,13 @@ var _laser_angle := 0.0     # 当前光束角度
 
 var _turrets: Array = []        # 四个炮台，每个 {pivot, sprite, forward, hp, blink, dead}
 var _turrets_alive := 0         # 还活着的炮台数
-var _body_vulnerable := false   # 主体是否已可被攻击（四炮台全爆后才 true）
+var _body_vulnerable := false   # 主体是否已可被攻击（核心打爆后才 true）
+
+# 击破阶段："turrets"打炮台 → "core"打核心 → "body"打本体血量
+var _stage := "turrets"
+var _core: Node2D = null        # 中央核心（占位发光圆）
+var _core_hp := 0.0
+var _core_alive := false        # 核心是否处于"可被攻击"状态
 
 func _ready():
 	_hp = max_hp
@@ -93,6 +117,25 @@ func _ready():
 	if solid:
 		solid.add_to_group("boss_solid")   # 让玩家撞到时能识别这是 Boss 实体 → 扣血
 	_setup_turrets()
+	# 中央核心：接好它的受击判定，平时藏起来（炮台全爆后才暴露）
+	_core = get_node_or_null("Core")
+	if _core:
+		_core.visible = false
+		var core_hit = _core.get_node_or_null("Hit")
+		if core_hit:
+			core_hit.area_entered.connect(_on_core_area)
+	# 隐形护盾：拿到 shader 材质，初始化命中缓冲(平时全透明，被打才就近点亮)
+	_shield = get_node_or_null("Shield")
+	if _shield and _shield.material is ShaderMaterial:
+		_shield_mat = _shield.material
+		_shield_hits.resize(SHIELD_MAX_HITS)
+		_shield_str.resize(SHIELD_MAX_HITS)
+		if _shield.texture:
+			_shield_mat.set_shader_parameter("aspect", float(_shield.texture.get_width()) / float(_shield.texture.get_height()))
+	# 从开局就打开本体子弹判定：阶段1还不能掉血(_body_vulnerable=false)，
+	# 但要靠它侦测到"子弹打本体"，好显形隐形盾(六边形网格)。
+	if _body_col:
+		_body_col.disabled = false
 	_center_x = get_viewport_rect().size.x / 2.0
 	position = Vector2(_center_x, -400.0)   # 先藏在屏幕上方外面
 
@@ -106,17 +149,22 @@ func _physics_process(delta):
 			position.y = hover_y
 			_entered = true
 	else:
-		# 就位后：用正弦曲线缓慢左右游移
-		_t += delta * drift_speed
-		position.x = _center_x + sin(_t) * drift_x
+		if _stage == "body":
+			# 核心爆后：平滑飞回屏幕水平中央，到位后就停住不再游移
+			position.x = move_toward(position.x, _center_x, center_speed * delta)
+		else:
+			# 就位后：用正弦曲线缓慢左右游移
+			_t += delta * drift_speed
+			position.x = _center_x + sin(_t) * drift_x
 	if _entered:
 		_update_ring(delta)
 		_update_mg(delta)
-		if _body_vulnerable:        # 第二阶段（炮台全爆、主体暴露）才放横扫激光
+		if _stage != "turrets":     # 第二阶段起（核心暴露后）才放横扫激光
 			_update_laser(delta)
 	_aim_turrets(delta)
 	_update_turret_blink(delta)
 	_update_blink(delta)
+	_update_shield_reveal(delta)
 
 # 招式①：每隔 ring_interval 秒，从核心向四周喷一圈子弹
 func _update_ring(delta):
@@ -328,13 +376,56 @@ func _destroy_turret(entry):
 	entry["pivot"].queue_free()       # 移除整个炮台(支点/图片/炮口/碰撞)
 	_turrets_alive -= 1
 	if _turrets_alive <= 0:
-		_enter_body_phase()
+		_enter_core_phase()
 
-# 四个炮台全部被毁 → 打开主体碰撞，主体进入可攻击阶段
-func _enter_body_phase():
-	_body_vulnerable = true
-	if _body_col:
-		_body_col.set_deferred("disabled", false)   # 延后打开，避开物理回调内改碰撞的限制
+# 四个炮台全部被毁 → 暴露中央核心，进入"打核心"阶段(2a)。
+# 此时本体仍是隐形盾(打了只冒六边形不掉血)，激光开始登场；核心可被攻击。
+func _enter_core_phase():
+	_stage = "core"
+	_core_hp = core_hp
+	_core_alive = true
+	if _core:
+		_core.visible = true
+		if _core.has_method("set_damage"):
+			_core.set_damage(0.0)
+
+# 子弹打中暴露的核心
+func _on_core_area(area):
+	if not _core_alive:
+		return
+	if not _entered:
+		return
+	if not area.is_in_group("bullet"):
+		return
+	_core_hp -= area.damage
+	area.queue_free()
+	if _core:
+		if _core.has_method("flash"):
+			_core.flash()
+		if _core.has_method("set_damage"):
+			_core.set_damage(1.0 - _core_hp / core_hp)
+	if _core_hp <= 0.0:
+		_destroy_core()
+
+# 核心被打爆 → 解全盾、停环形弹、开放本体血量(进入阶段2b)
+func _destroy_core():
+	_core_alive = false
+	_stage = "body"
+	ring_attack = false             # 环形弹的源头(核心)没了 → 停发
+	laser_attack = false            # 核心没了 → 横扫激光也停
+	_laser_warn.visible = false     # 清掉可能正在显示的预警红线
+	_laser_beam.visible = false     # 清掉可能正在扫的光束
+	_laser_phase = "idle"
+	_body_vulnerable = true         # 现在打本体开始真正掉血
+	# 核心爆掉的表现：播爆炸序列动画，放完停在最后一帧(废墟)永久留在原地
+	if _core and _core.has_method("explode"):
+		_core.explode()
+	var hud = get_tree().get_first_node_in_group("hud")
+	if hud:
+		hud.add_score(core_score)
+	var cam = get_tree().get_first_node_in_group("camera")
+	if cam:
+		cam.shake(300.0)
 
 func _update_blink(delta):
 	if _blink_t <= 0.0:
@@ -348,17 +439,56 @@ func _update_blink(delta):
 func _on_area_entered(area):
 	if _dead:
 		return
-	if not _entered:               # 进场(压入)期间无敌
+	if not area.is_in_group("bullet"):
 		return
-	if not _body_vulnerable:       # 四个炮台没打完前，主体打不动
+	if not _entered:
+		# 出场(压入)期间：全身无敌，子弹一律被护盾挡下并就近显形护盾
+		_register_shield_hit(area.global_position)
+		area.queue_free()
 		return
-	if area.is_in_group("bullet"):
+	if _body_vulnerable:
+		# 主体可攻击阶段：正常掉血
 		_hp -= area.damage
 		area.queue_free()
 		_blink_t = blink_persist
 		if _hp <= 0.0:
 			_dead = true
 			_die()
+	else:
+		# 隐形盾阶段：挡住子弹并在命中点冒护盾涟漪，本体不掉血。
+		# 例外——玩家子弹竖直上飞，若它所在的"竖直弹道"(按横向 x 判断)上有活着的炮台
+		# 或暴露的核心，就放它过去打它们(否则后排炮台/核心永远打不到)。
+		for t in _turrets:
+			if not t["dead"] and is_instance_valid(t["sprite"]) \
+					and abs(area.global_position.x - t["sprite"].global_position.x) < shield_turret_skip:
+				return
+		if _core_alive and is_instance_valid(_core) \
+				and abs(area.global_position.x - _core.global_position.x) < core_hit_skip:
+			return
+		# 其余子弹：被盾挡下(消失) + 在命中处就近点亮隐形护盾
+		_register_shield_hit(area.global_position)
+		area.queue_free()
+
+# 把一次命中登记到隐形护盾：换算成贴图UV，写进命中缓冲(强度1)，shader 就会就近点亮一块。
+func _register_shield_hit(world_pos: Vector2):
+	if _shield == null or _shield_mat == null or _shield.texture == null:
+		return
+	var local: Vector2 = _shield.to_local(world_pos)
+	var ts: Vector2 = _shield.texture.get_size()
+	var uv := Vector2(local.x / ts.x + 0.5, local.y / ts.y + 0.5)
+	_shield_hits[_shield_write] = uv
+	_shield_str[_shield_write] = 1.0
+	_shield_write = (_shield_write + 1) % SHIELD_MAX_HITS
+
+# 每帧：各命中点亮度逐渐衰减，并把最新数组喂给 shader(平时全 0 → 护盾全透明)
+func _update_shield_reveal(delta: float):
+	if _shield_mat == null:
+		return
+	for i in SHIELD_MAX_HITS:
+		if _shield_str[i] > 0.0:
+			_shield_str[i] = max(_shield_str[i] - shield_reveal_decay * delta, 0.0)
+	_shield_mat.set_shader_parameter("hits", _shield_hits)
+	_shield_mat.set_shader_parameter("strengths", _shield_str)
 
 func _die():
 	# 播放 5 秒的死亡演出动画(boss_death_anim.tscn)：起火→大爆炸→解体→碎片四散。
