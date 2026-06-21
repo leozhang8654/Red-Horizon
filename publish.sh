@@ -9,6 +9,7 @@ BUILD_DIR="$PROJECT_DIR/build/web"
 TARGET="leo8654/red-horizon:html5"
 
 echo "==> 1/2 打包网页版..."
+mkdir -p "$BUILD_DIR"   # Godot 不会自动建多级目录，先确保 build/web 存在
 "$GODOT" --headless --path "$PROJECT_DIR" --export-release "Web" build/web/index.html
 
 echo "==> 2/2 上传到 itch.io ($TARGET)..."
